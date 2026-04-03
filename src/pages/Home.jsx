@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import useAppStore from '../store/useAppStore'
@@ -55,23 +55,26 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
         animate={{ opacity: 1 }}
       />
 
-      {/* Sheet */}
+      {/* Sheet - max-h 85vh, flex-col 구조로 버튼 항상 하단 고정 */}
       <motion.div
-        className="relative w-full bg-white rounded-t-3xl p-6 pb-10"
+        className="relative w-full bg-white rounded-t-3xl flex flex-col"
+        style={{ maxHeight: '85vh' }}
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       >
-        {/* Handle */}
-        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
+        {/* 헤더 - 고정 */}
+        <div className="px-6 pt-6 pb-2 shrink-0">
+          <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
+          <h3 className="text-lg font-bold text-gray-800 mb-1">
+            오늘 {group.key} 했나요?
+          </h3>
+          <p className="text-sm text-gray-400">체크한 항목만큼 점수가 올라가요 (+2점/개)</p>
+        </div>
 
-        <h3 className="text-lg font-bold text-gray-800 mb-1">
-          오늘 {group.key} 했나요?
-        </h3>
-        <p className="text-sm text-gray-400 mb-5">체크한 항목만큼 점수가 올라가요 (+2점/개)</p>
-
-        <div className="space-y-3 mb-6">
+        {/* 체크리스트 - 스크롤 가능 */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
           {group.items.map(item => {
             const isChecked = checked.includes(item.key)
             return (
@@ -98,7 +101,8 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
           })}
         </div>
 
-        <div className="flex gap-3">
+        {/* 버튼 영역 - 항상 하단 고정 */}
+        <div className="px-6 pt-3 pb-8 shrink-0 border-t border-gray-100 flex gap-3">
           <button
             onClick={onCancel}
             className="flex-1 py-3.5 rounded-2xl border-2 border-gray-200 text-gray-500 font-semibold"
@@ -123,7 +127,7 @@ function PetCard({ pet, levelData, isActive, onClick }) {
   return (
     <motion.div
       onClick={onClick}
-      className={`flex-shrink-0 w-72 rounded-2xl p-4 flex items-center gap-3 cursor-pointer transition-all
+      className={`w-full rounded-2xl p-4 flex items-center gap-3 cursor-pointer transition-all
         ${isActive ? 'bg-white/25 border-2 border-white/50' : 'bg-white/10 border-2 border-white/20'}`}
       whileTap={{ scale: 0.97 }}
     >
@@ -162,13 +166,16 @@ function AddPetCard({ onClick }) {
   return (
     <motion.div
       onClick={onClick}
-      className="flex-shrink-0 w-40 rounded-2xl border-2 border-dashed border-white/40 flex flex-col items-center justify-center gap-2 py-6 cursor-pointer bg-white/5"
-      whileTap={{ scale: 0.96 }}
+      className="w-full rounded-2xl border-2 border-dashed border-white/40 flex items-center justify-center gap-4 py-5 px-5 cursor-pointer bg-white/5"
+      whileTap={{ scale: 0.97 }}
     >
-      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-        <span className="text-white text-2xl font-light">+</span>
+      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+        <span className="text-white text-3xl font-light leading-none">+</span>
       </div>
-      <span className="text-white/80 text-xs font-medium text-center leading-tight">반려동물<br/>추가</span>
+      <div>
+        <p className="text-white font-semibold text-sm">반려동물 추가</p>
+        <p className="text-white/60 text-xs mt-0.5">새 펫을 등록해보세요</p>
+      </div>
     </motion.div>
   )
 }
@@ -193,6 +200,17 @@ export default function Home() {
     : { date: today, groups: { '산책/놀이': { done: false, checkedItems: [] }, '식사/급수/영양': { done: false, checkedItems: [] } } }
 
   const [activeModal, setActiveModal] = useState(null) // group key or null
+  const [carouselIndex, setCarouselIndex] = useState(0)
+  const carouselRef = useRef(null)
+
+  // 각 슬라이드가 clientWidth와 동일하므로 scrollLeft / clientWidth 로 인덱스 계산
+  const totalSlides = pets.length + 1
+  const handleCarouselScroll = useCallback(() => {
+    if (!carouselRef.current) return
+    const el = carouselRef.current
+    const idx = Math.round(el.scrollLeft / el.clientWidth)
+    setCarouselIndex(Math.min(idx, totalSlides - 1))
+  }, [totalSlides])
 
   const doneCount = Object.values(activeQC.groups).filter(g => g.done).length
   const totalGroups = CHECK_GROUPS.length
@@ -213,8 +231,8 @@ export default function Home() {
   const openGroup = CHECK_GROUPS.find(g => g.key === activeModal)
 
   return (
-    <PageWrapper>
-      {/* Quick Check Modal */}
+    <>
+      {/* Quick Check Modal - PageWrapper 바깥에 렌더링 (transform 컨텍스트 회피) */}
       <AnimatePresence>
         {openGroup && (
           <QuickCheckModal
@@ -225,6 +243,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
+      <PageWrapper>
       {/* Header */}
       <div className="bg-gradient-to-b from-primary-deep to-primary pt-12 pb-5 px-4">
         <div className="flex items-center justify-between mb-4">
@@ -239,22 +258,52 @@ export default function Home() {
           </motion.button>
         </div>
 
-        {/* 펫 프로필 캐러셀 */}
-        <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1"
-          style={{ scrollSnapType: 'x mandatory' }}>
-          {pets.map(pet => (
-            <div key={pet.id} style={{ scrollSnapAlign: 'start' }}>
-              <PetCard
-                pet={pet}
-                levelData={levelData[pet.id]}
-                isActive={pet.id === activePetId}
-                onClick={() => setActivePet(pet.id)}
-              />
+        {/* 펫 프로필 캐러셀 - overflow-hidden으로 다음 슬라이드 완전히 숨김 */}
+        <div className="overflow-hidden -mx-4">
+          <div
+            ref={carouselRef}
+            onScroll={handleCarouselScroll}
+            className="flex overflow-x-auto scrollbar-hide pb-2"
+            style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
+          >
+            {pets.map(pet => (
+              <div
+                key={pet.id}
+                className="flex-shrink-0 w-full px-4"
+                style={{ scrollSnapAlign: 'start' }}
+              >
+                <PetCard
+                  pet={pet}
+                  levelData={levelData[pet.id]}
+                  isActive={pet.id === activePetId}
+                  onClick={() => setActivePet(pet.id)}
+                />
+              </div>
+            ))}
+            {/* "+" 카드: 스크롤해야만 등장 */}
+            <div
+              className="flex-shrink-0 w-full px-4"
+              style={{ scrollSnapAlign: 'start' }}
+            >
+              <AddPetCard onClick={() => navigate('/pet-setup?mode=add')} />
             </div>
-          ))}
-          <div style={{ scrollSnapAlign: 'start' }}>
-            <AddPetCard onClick={() => navigate('/pet-setup?mode=add')} />
           </div>
+        </div>
+
+        {/* 슬라이드 인디케이터 */}
+        <div className="flex justify-center gap-1.5 mt-2.5 pb-1">
+          {Array.from({ length: totalSlides }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="rounded-full bg-white"
+              animate={{
+                width: i === carouselIndex ? 16 : 6,
+                height: 6,
+                opacity: i === carouselIndex ? 1 : 0.35,
+              }}
+              transition={{ duration: 0.25 }}
+            />
+          ))}
         </div>
       </div>
 
@@ -338,13 +387,16 @@ export default function Home() {
                     </span>
                     <AnimatePresence>
                       {isDone ? (
-                        <motion.span
+                        <motion.div
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="text-xs text-gray-400 font-bold"
+                          className="flex flex-col items-center gap-0.5"
                         >
-                          완료 ✓
-                        </motion.span>
+                          <span className="text-xs text-gray-400 font-bold">완료 ✓</span>
+                          <span className="text-[10px] text-gray-400 leading-tight text-center">
+                            오늘은 수정할 수 없어요
+                          </span>
+                        </motion.div>
                       ) : (
                         <motion.span
                           initial={{ opacity: 0 }}
@@ -464,5 +516,6 @@ export default function Home() {
 
       <BottomNav />
     </PageWrapper>
+    </>
   )
 }
