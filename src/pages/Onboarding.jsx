@@ -72,16 +72,23 @@ export default function Onboarding() {
         )}
       </div>
 
-      {/* Slide content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8">
+      {/* Slide content - onPanEnd로 좌우 스와이프 감지 */}
+      <motion.div
+        className="flex-1 flex flex-col items-center justify-center px-8 pb-8"
+        onPanEnd={(e, info) => {
+          if (Math.abs(info.offset.x) < 40) return
+          if (info.offset.x < 0) goNext()
+          else goPrev()
+        }}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
-            initial={{ opacity: 0, x: direction * 60 }}
+            initial={{ opacity: 0, x: direction * 80 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -60 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="flex flex-col items-center text-center"
+            exit={{ opacity: 0, x: direction * -80 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col items-center text-center w-full"
           >
             {/* Illustration card */}
             <motion.div
@@ -101,7 +108,7 @@ export default function Onboarding() {
             </p>
           </motion.div>
         </AnimatePresence>
-      </div>
+      </motion.div>
 
       {/* Bottom area */}
       <div className="px-6 pb-10 flex flex-col items-center gap-5">

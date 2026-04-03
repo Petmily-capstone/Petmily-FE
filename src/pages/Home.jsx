@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import useAppStore from '../store/useAppStore'
 import BottomNav from '../components/BottomNav'
 import PageWrapper from '../components/PageWrapper'
@@ -29,9 +29,14 @@ const CHECK_GROUPS = [
   },
 ]
 
-// ── Quick Check 모달 ──
+// ── Quick Check 모달 (드래그로 높이 조절 가능한 바텀시트) ──
 function QuickCheckModal({ group, onConfirm, onCancel }) {
   const [checked, setChecked] = useState([])
+
+  // 드래그 Y 값: 위로 드래그 = 음수, 아래로 드래그 = 양수
+  const dragY = useMotionValue(0)
+  // dragY를 시트 높이(vh)로 변환: y=0 → 60vh, y=-200 → 88vh
+  const sheetHeight = useTransform(dragY, [-220, 0], ['92vh', '60vh'])
 
   const toggle = (key) => {
     setChecked(prev =>
@@ -39,10 +44,19 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
     )
   }
 
+  const handleDragEnd = (_, info) => {
+    // 아래로 120px 이상 드래그 시 닫기
+    if (info.offset.y > 120) onCancel()
+    // 위로 당겼다 놓으면 dragY는 자동으로 constraint 내 위치 유지
+  }
+
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ width: '390px', left: '50%', transform: 'translateX(-50%)' }}
+      className="fixed z-50 flex items-end justify-center"
+      style={{
+        top: 0, bottom: 0,
+        width: '390px', left: '50%', transform: 'translateX(-50%)',
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -55,26 +69,30 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
         animate={{ opacity: 1 }}
       />
 
-      {/* Sheet - max-h 85vh, flex-col 구조로 버튼 항상 하단 고정 */}
+      {/* 드래그 가능한 시트 */}
       <motion.div
-        className="relative w-full bg-white rounded-t-3xl flex flex-col"
-        style={{ maxHeight: '85vh' }}
+        drag="y"
+        dragConstraints={{ top: -220, bottom: 0 }}
+        dragElastic={{ top: 0.15, bottom: 0.4 }}
+        onDragEnd={handleDragEnd}
+        style={{ y: dragY, height: sheetHeight }}
+        className="relative w-full bg-white rounded-t-3xl flex flex-col overflow-hidden"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       >
-        {/* 헤더 - 고정 */}
-        <div className="px-6 pt-6 pb-2 shrink-0">
-          <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
-          <h3 className="text-lg font-bold text-gray-800 mb-1">
+        {/* 드래그 핸들 + 헤더 (고정) */}
+        <div className="px-6 pt-4 pb-3 shrink-0 cursor-grab active:cursor-grabbing">
+          <div className="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-gray-800 mb-0.5">
             오늘 {group.key} 했나요?
           </h3>
-          <p className="text-sm text-gray-400">체크한 항목만큼 점수가 올라가요 (+2점/개)</p>
+          <p className="text-sm text-gray-400">위로 드래그하면 크게 볼 수 있어요 (+2점/개)</p>
         </div>
 
-        {/* 체크리스트 - 스크롤 가능 */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+        {/* 체크리스트 (스크롤) */}
+        <div className="flex-1 overflow-y-auto px-6 py-2 space-y-3">
           {group.items.map(item => {
             const isChecked = checked.includes(item.key)
             return (
@@ -101,8 +119,8 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
           })}
         </div>
 
-        {/* 버튼 영역 - 항상 하단 고정 */}
-        <div className="px-6 pt-3 pb-8 shrink-0 border-t border-gray-100 flex gap-3">
+        {/* 버튼 영역 (항상 하단 고정) */}
+        <div className="px-6 pt-3 pb-8 shrink-0 border-t border-gray-100 flex gap-3 bg-white">
           <button
             onClick={onCancel}
             className="flex-1 py-3.5 rounded-2xl border-2 border-gray-200 text-gray-500 font-semibold"
