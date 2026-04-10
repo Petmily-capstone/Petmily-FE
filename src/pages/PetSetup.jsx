@@ -19,7 +19,7 @@ export default function PetSetup() {
   const [step, setStep] = useState(0)
   const [petData, setPetData] = useState({
     name: '',
-    type: 'dog',
+    type: '',
     breed: '',
     gender: '',
     birthYear: '',
@@ -47,7 +47,10 @@ export default function PetSetup() {
 
   const goPrev = () => { if (step > 0) setStep(step - 1) }
 
-  const breeds = petData.type === 'dog' ? dogBreeds : catBreeds
+  const breeds =
+    petData.type === 'dog' ? dogBreeds :
+    petData.type === 'cat' ? catBreeds :
+    []
 
   const steps = [
     // Step 0: Type
