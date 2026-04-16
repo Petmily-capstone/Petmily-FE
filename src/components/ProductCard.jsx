@@ -17,7 +17,7 @@ export default function ProductCard({ product, size = 'default' }) {
       >
         <div className="relative">
           <img
-            src={`https://picsum.photos/200/200?random=${product.id}`}
+            src={product.image || `https://picsum.photos/200/200?random=${product.id}`}
             alt={product.name}
             className="w-full h-28 object-cover"
           />
@@ -50,7 +50,7 @@ export default function ProductCard({ product, size = 'default' }) {
     >
       <div className="relative">
         <img
-          src={`https://picsum.photos/200/200?random=${product.id}`}
+          src={product.image || `https://picsum.photos/200/200?random=${product.id}`}
           alt={product.name}
           className="w-full h-40 object-cover"
         />

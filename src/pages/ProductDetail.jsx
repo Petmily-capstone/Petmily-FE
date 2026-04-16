@@ -1,33 +1,37 @@
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import useAppStore from '../store/useAppStore'
-import Button from '../components/Button'
-import Badge from '../components/Badge'
-import { mockProducts } from '../data/mockData'
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import useAppStore from '../store/useAppStore';
+import Button from '../components/Button';
+import Badge from '../components/Badge';
+import { mockProducts } from '../data/mockData';
 
-const tabs = ['성분 분석', '적합 대상', '리뷰']
+const tabs = ['성분 분석', '적합 대상', '리뷰'];
 
 export default function ProductDetail() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { wishlist, toggleWishlist, addToCart } = useAppStore()
-  const product = mockProducts.find(p => p.id === parseInt(id))
-  const [activeTab, setActiveTab] = useState(0)
-  const [added, setAdded] = useState(false)
-  const isWished = wishlist.includes(product?.id)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { wishlist, toggleWishlist, addToCart } = useAppStore();
+  const product = mockProducts.find((p) => p.id === parseInt(id));
+  const [activeTab, setActiveTab] = useState(0);
+  const [added, setAdded] = useState(false);
+  const isWished = wishlist.includes(product?.id);
 
-  if (!product) return <div className="p-8 text-center text-gray-400">상품을 찾을 수 없어요</div>
+  if (!product)
+    return (
+      <div className="p-8 text-center text-gray-400">상품을 찾을 수 없어요</div>
+    );
 
   const handleAddToCart = () => {
-    addToCart(product)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2000)
-  }
+    addToCart(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
-  const discountPct = product.originalPrice > product.price
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
-    : 0
+  const discountPct =
+    product.originalPrice > product.price
+      ? Math.round((1 - product.price / product.originalPrice) * 100)
+      : 0;
 
   return (
     <div className="min-h-screen bg-[#F0F7FF] pb-28">
@@ -38,8 +42,15 @@ export default function ProductDetail() {
           whileTap={{ scale: 0.9 }}
           className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5">
-            <path d="M15 18l-6-6 6-6"/>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#374151"
+            strokeWidth="2.5"
+          >
+            <path d="M15 18l-6-6 6-6" />
           </svg>
         </motion.button>
       </div>
@@ -47,7 +58,7 @@ export default function ProductDetail() {
       {/* Product image */}
       <div className="relative bg-white">
         <img
-          src={`https://picsum.photos/390/300?random=${product.id}`}
+          src={product.image || `https://picsum.photos/390/300?random=${product.id}`}
           alt={product.name}
           className="w-full h-72 object-cover"
         />
@@ -78,23 +89,39 @@ export default function ProductDetail() {
             <p className="text-xs text-gray-400">{product.brand}</p>
             <Badge variant="blue">펫밀리 {product.petmilyScore}점</Badge>
           </div>
-          <h1 className="text-lg font-bold text-gray-800 mb-2 leading-snug">{product.name}</h1>
+          <h1 className="text-lg font-bold text-gray-800 mb-2 leading-snug">
+            {product.name}
+          </h1>
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-2xl font-bold text-gray-900">{product.price.toLocaleString()}원</span>
+            <span className="text-2xl font-bold text-gray-900">
+              {product.price.toLocaleString()}원
+            </span>
             {discountPct > 0 && (
-              <span className="text-base text-gray-400 line-through">{product.originalPrice.toLocaleString()}원</span>
+              <span className="text-base text-gray-400 line-through">
+                {product.originalPrice.toLocaleString()}원
+              </span>
             )}
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
-                <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill={i < Math.floor(product.rating) ? '#FBBF24' : '#E5E7EB'}>
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                <svg
+                  key={i}
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill={i < Math.floor(product.rating) ? '#FBBF24' : '#E5E7EB'}
+                >
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
               ))}
-              <span className="text-sm font-semibold text-gray-700 ml-1">{product.rating}</span>
+              <span className="text-sm font-semibold text-gray-700 ml-1">
+                {product.rating}
+              </span>
             </div>
-            <span className="text-xs text-gray-400">리뷰 {product.reviewCount}개</span>
+            <span className="text-xs text-gray-400">
+              리뷰 {product.reviewCount}개
+            </span>
           </div>
         </div>
 
@@ -105,7 +132,11 @@ export default function ProductDetail() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(i)}
-                className={`flex-1 py-3.5 text-sm font-semibold transition-all ${activeTab === i ? 'text-primary border-b-2 border-primary' : 'text-gray-400'}`}
+                className={`flex-1 py-3.5 text-sm font-semibold transition-all ${
+                  activeTab === i
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-400'
+                }`}
               >
                 {tab}
               </button>
@@ -129,8 +160,11 @@ export default function ProductDetail() {
                       좋은 성분
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {product.goodIngredients.map(ing => (
-                        <span key={ing} className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-200">
+                      {product.goodIngredients.map((ing) => (
+                        <span
+                          key={ing}
+                          className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-200"
+                        >
                           ✓ {ing}
                         </span>
                       ))}
@@ -143,8 +177,11 @@ export default function ProductDetail() {
                         주의 성분
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {product.cautionIngredients.map(ing => (
-                          <span key={ing} className="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-xs font-medium border border-orange-200">
+                        {product.cautionIngredients.map((ing) => (
+                          <span
+                            key={ing}
+                            className="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-xs font-medium border border-orange-200"
+                          >
                             ⚠️ {ing}
                           </span>
                         ))}
@@ -158,8 +195,11 @@ export default function ProductDetail() {
                         기능성 성분
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {product.functionalIngredients.map(ing => (
-                          <span key={ing} className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-medium border border-blue-200">
+                        {product.functionalIngredients.map((ing) => (
+                          <span
+                            key={ing}
+                            className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-medium border border-blue-200"
+                          >
                             💊 {ing}
                           </span>
                         ))}
@@ -172,19 +212,27 @@ export default function ProductDetail() {
               {activeTab === 1 && (
                 <div className="space-y-3">
                   <div>
-                    <h4 className="text-sm font-bold text-green-600 mb-2">✅ 적합 대상</h4>
+                    <h4 className="text-sm font-bold text-green-600 mb-2">
+                      ✅ 적합 대상
+                    </h4>
                     <div className="flex flex-wrap gap-2">
-                      {product.suitable.map(s => (
-                        <Badge key={s} variant="green">{s}</Badge>
+                      {product.suitable.map((s) => (
+                        <Badge key={s} variant="green">
+                          {s}
+                        </Badge>
                       ))}
                     </div>
                   </div>
                   {product.unsuitable.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-bold text-red-500 mb-2">❌ 비적합 대상</h4>
+                      <h4 className="text-sm font-bold text-red-500 mb-2">
+                        ❌ 비적합 대상
+                      </h4>
                       <div className="flex flex-wrap gap-2">
-                        {product.unsuitable.map(s => (
-                          <Badge key={s} variant="red">{s}</Badge>
+                        {product.unsuitable.map((s) => (
+                          <Badge key={s} variant="red">
+                            {s}
+                          </Badge>
                         ))}
                       </div>
                     </div>
@@ -203,15 +251,23 @@ export default function ProductDetail() {
                       className="bg-gray-50 rounded-xl p-3"
                     >
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="font-semibold text-sm text-gray-800">{review.user}</span>
+                        <span className="font-semibold text-sm text-gray-800">
+                          {review.user}
+                        </span>
                         <div className="flex gap-0.5">
                           {[...Array(review.rating)].map((_, j) => (
-                            <span key={j} className="text-yellow-400 text-xs">⭐</span>
+                            <span key={j} className="text-yellow-400 text-xs">
+                              ⭐
+                            </span>
                           ))}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 leading-relaxed">{review.content}</p>
-                      <p className="text-xs text-gray-400 mt-1">{review.date}</p>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {review.content}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {review.date}
+                      </p>
                     </motion.div>
                   ))}
                 </div>
@@ -230,12 +286,25 @@ export default function ProductDetail() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="w-full py-4 bg-green-500 rounded-2xl flex items-center justify-center gap-2 text-white font-bold"
+              className="flex gap-2"
             >
-              <span>✅</span> 장바구니에 추가되었어요!
+              <div className="flex-1 py-4 bg-green-500 rounded-2xl flex items-center justify-center gap-2 text-white font-bold text-sm">
+                <span>✅</span> 장바구니에 추가됨
+              </div>
+              <motion.button
+                onClick={() => navigate('/shop/cart')}
+                whileTap={{ scale: 0.96 }}
+                className="flex-1 py-4 bg-primary rounded-2xl flex items-center justify-center gap-2 text-white font-bold text-sm"
+              >
+                장바구니 보기 →
+              </motion.button>
             </motion.div>
           ) : (
-            <motion.div key="buy" className="flex gap-3" initial={{ opacity: 1 }}>
+            <motion.div
+              key="buy"
+              className="flex gap-3"
+              initial={{ opacity: 1 }}
+            >
               <Button
                 onClick={() => toggleWishlist(product.id)}
                 variant="secondary"
@@ -251,5 +320,5 @@ export default function ProductDetail() {
         </AnimatePresence>
       </div>
     </div>
-  )
+  );
 }
