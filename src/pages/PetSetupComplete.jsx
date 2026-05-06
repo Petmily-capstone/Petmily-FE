@@ -2,6 +2,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import useAppStore from '../store/useAppStore'
 import Button from '../components/Button'
+import catImage from '../assets/cat/cat.jpg'
+import dogImage from '../assets/dog/dog.jpg'
 
 export default function PetSetupComplete() {
   const navigate = useNavigate()
@@ -55,7 +57,7 @@ export default function PetSetupComplete() {
       >
         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/30">
           <img
-            src={activePet.type === 'cat' ? 'https://placekitten.com/80/80' : 'https://placedog.net/80/80'}
+            src={activePet.type === 'cat' ? catImage : dogImage}
             alt={activePet.name}
             className="w-full h-full object-cover"
           />

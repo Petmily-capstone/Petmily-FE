@@ -47,7 +47,7 @@ export default function ProductDetail() {
       {/* Product image */}
       <div className="relative bg-white">
         <img
-          src={`https://picsum.photos/390/300?random=${product.id}`}
+          src={product.image}
           alt={product.name}
           className="w-full h-72 object-cover"
         />

@@ -7,6 +7,8 @@ import Badge from '../components/Badge'
 import ProgressBar from '../components/ProgressBar'
 import ProductCard from '../components/ProductCard'
 import { mockDiagnosisHistory, mockProducts } from '../data/mockData'
+import catImage from '../assets/cat/cat.jpg'
+import dogImage from '../assets/dog/dog.jpg'
 
 const settingItems = [
   { icon: '🔔', label: '알림 설정', arrow: true },
@@ -115,7 +117,7 @@ export default function MyPage() {
             {pets.map(pet => (
               <div key={pet.id} className="flex items-center gap-3">
                 <img
-                  src={pet.type === 'cat' ? 'https://placekitten.com/60/60' : 'https://placedog.net/60/60'}
+                  src={pet.type === 'cat' ? catImage : dogImage}
                   alt={pet.name}
                   className="w-12 h-12 rounded-xl object-cover"
                 />
