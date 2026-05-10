@@ -1,12 +1,14 @@
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import useAppStore from '../store/useAppStore';
-import BottomNav from '../components/BottomNav';
-import PageWrapper from '../components/PageWrapper';
-import Badge from '../components/Badge';
-import ProgressBar from '../components/ProgressBar';
-import ProductCard from '../components/ProductCard';
-import { mockDiagnosisHistory, mockProducts } from '../data/mockData';
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import useAppStore from '../store/useAppStore'
+import BottomNav from '../components/BottomNav'
+import PageWrapper from '../components/PageWrapper'
+import Badge from '../components/Badge'
+import ProgressBar from '../components/ProgressBar'
+import ProductCard from '../components/ProductCard'
+import { mockDiagnosisHistory, mockProducts } from '../data/mockData'
+import catImage from '../assets/cat/cat.jpg'
+import dogImage from '../assets/dog/dog.jpg'
 
 const settingItems = [
   { icon: '🔔', label: '알림 설정', arrow: true },
@@ -142,12 +144,7 @@ export default function MyPage() {
             {pets.map((pet) => (
               <div key={pet.id} className="flex items-center gap-3">
                 <img
-                  src={
-                    pet.photo ||
-                    (pet.type === 'cat'
-                      ? `https://loremflickr.com/60/60/cat,kitten?lock=${pet.id.slice(-3)}`
-                      : `https://loremflickr.com/60/60/dog,puppy?lock=${pet.id.slice(-3)}`)
-                  }
+                  src={pet.type === 'cat' ? catImage : dogImage}
                   alt={pet.name}
                   className="w-12 h-12 rounded-xl object-cover"
                 />

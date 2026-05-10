@@ -7,6 +7,8 @@ import PageWrapper from '../components/PageWrapper'
 import ProgressBar from '../components/ProgressBar'
 import Badge from '../components/Badge'
 import { mockHealthContents } from '../data/mockData'
+import catImage from '../assets/cat/cat.jpg'
+import dogImage from '../assets/dog/dog.jpg'
 
 // ── Quick Check 그룹 정의 ──
 const CHECK_GROUPS = [
@@ -151,7 +153,7 @@ function PetCard({ pet, levelData, isActive, onClick }) {
     >
       <div className="relative">
         <img
-          src={pet.type === 'cat' ? 'https://placekitten.com/60/60' : 'https://placedog.net/60/60'}
+          src={pet.type === 'cat' ? catImage : dogImage}
           alt={pet.name}
           className="w-14 h-14 rounded-xl object-cover border-2 border-white/50"
         />

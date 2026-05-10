@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import useAppStore from '../store/useAppStore'
@@ -198,8 +199,34 @@ export default function Diagnosis() {
     setDiagnosisCategory, setDiagnosisSymptom, startDiagnosis, clearDiagnosis,
   } = useAppStore()
   const pet = pets.find(p => p.id === activePetId) || pets[0]
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('')
+  const fileInputRef = useRef(null)
 
-  const canStart = diagnosisCategory || diagnosisSymptom.trim()
+  useEffect(() => {
+    if (!selectedImage) {
+      setImagePreviewUrl('')
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(selectedImage)
+    setImagePreviewUrl(objectUrl)
+
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [selectedImage])
+
+  const handleImageSelect = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setSelectedImage(file)
+  }
+
+  const handleImageRemove = () => {
+    setSelectedImage(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const canStart = diagnosisCategory || diagnosisSymptom.trim() || selectedImage
 
   return (
     <PageWrapper>
@@ -263,23 +290,59 @@ export default function Diagnosis() {
               />
             </div>
 
-            {/* Image upload (UI only) */}
+            {/* Image upload */}
             <div className="bg-white rounded-2xl shadow-sm p-4">
               <h3 className="font-bold text-gray-800 mb-3">사진 첨부 (선택)</h3>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
               <motion.button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
                 className="w-full border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center gap-2 bg-gray-50"
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <polyline points="21,15 16,10 5,21"/>
-                  </svg>
-                </div>
-                <p className="text-sm font-medium text-gray-600">사진 추가</p>
-                <p className="text-xs text-gray-400">피부, 눈, 귀 등 증상 부위를 촬영해주세요</p>
+                {imagePreviewUrl ? (
+                  <>
+                    <img
+                      src={imagePreviewUrl}
+                      alt="Selected"
+                      className="w-full max-h-56 rounded-xl object-cover"
+                    />
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-gray-700">{selectedImage?.name}</p>
+                      <p className="text-xs text-gray-400 mt-1">이 사진 영역을 다시 누르면 사진을 바꿀 수 있습니다.</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21,15 16,10 5,21"/>
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-gray-600">사진 추가</p>
+                    <p className="text-xs text-gray-400">피부, 눈, 귀 등 증상 부위를 촬영해주세요</p>
+                  </>
+                )}
               </motion.button>
+              {selectedImage && (
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleImageRemove}
+                    className="text-xs font-medium text-red-500"
+                  >
+                    사진 제거
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Start button */}

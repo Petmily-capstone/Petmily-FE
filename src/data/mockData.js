@@ -1,3 +1,15 @@
+import bambooPeePad100 from '../assets/Product/bamboo-pee-pad-100.jpeg'
+import cesarSoftPouchMix from '../assets/Product/cesar-soft-pouch-mix.jpeg'
+import drDogSkinSupplement from '../assets/Product/dr-dog-skin-supplement.jpeg'
+import duckLowAllergyTreat from '../assets/Product/duck-low-allergy-treat.jpeg'
+import jointCareSupplement from '../assets/Product/joint-care-supplement.jpeg'
+import naturalBalanceLidSalmon from '../assets/Product/natural-balance-lid-salmon.jpeg'
+import pawsSalmonLowProteinTreat from '../assets/Product/paws-salmon-low-protein-treat.jpeg'
+import proplanSkinCoatCare from '../assets/Product/proplan-skin-coat-care.jpeg'
+import ropeKnotToySet from '../assets/Product/rope-knot-toy-set.jpeg'
+import royalCaninMalteseFood from '../assets/Product/royal-canin-maltese-food.jpeg'
+import dogImage from '../assets/dog/dog.jpg'
+
 export const mockPet = {
   name: "초코",
   breed: "말티즈",
@@ -7,7 +19,7 @@ export const mockPet = {
   neutered: true,
   disease: "없음",
   allergy: "닭고기",
-  photo: "https://loremflickr.com/200/200/maltese,dog?lock=1",
+  photo: dogImage,
 }
 
 export const mockLevel = {
@@ -21,6 +33,7 @@ export const mockLevel = {
 export const mockProducts = [
   {
     id: 1,
+    image: royalCaninMalteseFood,
     name: "로얄캐닌 말티즈 전용 사료",
     brand: "로얄캐닌",
     image: "https://loremflickr.com/300/300/dog,food,kibble?lock=11",
@@ -44,6 +57,7 @@ export const mockProducts = [
   },
   {
     id: 2,
+    image: naturalBalanceLidSalmon,
     name: "네츄럴발란스 LID 연어",
     brand: "네츄럴발란스",
     image: "https://loremflickr.com/300/300/salmon,fish,food?lock=22",
@@ -66,6 +80,7 @@ export const mockProducts = [
   },
   {
     id: 3,
+    image: drDogSkinSupplement,
     name: "닥터독 피부 영양제",
     brand: "닥터독",
     image: "https://loremflickr.com/300/300/vitamin,supplement,capsule?lock=33",
@@ -87,6 +102,7 @@ export const mockProducts = [
   },
   {
     id: 4,
+    image: pawsSalmonLowProteinTreat,
     name: "포우즈 연어 저단백 간식",
     brand: "포우즈",
     image: "https://loremflickr.com/300/300/salmon,snack,treat?lock=44",
@@ -108,6 +124,7 @@ export const mockProducts = [
   },
   {
     id: 5,
+    image: cesarSoftPouchMix,
     name: "시저 소프트 파우치 혼합",
     brand: "시저",
     image: "https://loremflickr.com/300/300/wet,food,pouch?lock=55",
@@ -129,6 +146,7 @@ export const mockProducts = [
   },
   {
     id: 6,
+    image: proplanSkinCoatCare,
     name: "프로플랜 피부&피모 케어",
     brand: "퓨리나",
     image: "https://loremflickr.com/300/300/dog,food,premium?lock=66",
@@ -150,6 +168,7 @@ export const mockProducts = [
   },
   {
     id: 7,
+    image: duckLowAllergyTreat,
     name: "오리 단백 저알러지 간식",
     brand: "네이처스베스트",
     image: "https://loremflickr.com/300/300/duck,meat,food?lock=77",
@@ -171,6 +190,7 @@ export const mockProducts = [
   },
   {
     id: 8,
+    image: jointCareSupplement,
     name: "조인트케어 관절 영양제",
     brand: "닥터독",
     image: "https://loremflickr.com/300/300/joint,health,supplement?lock=88",
@@ -192,6 +212,7 @@ export const mockProducts = [
   },
   {
     id: 9,
+    image: bambooPeePad100,
     name: "대나무 배변패드 100매",
     brand: "클린펫",
     image: "https://loremflickr.com/300/300/bamboo,hygiene,pad?lock=99",
@@ -213,6 +234,7 @@ export const mockProducts = [
   },
   {
     id: 10,
+    image: ropeKnotToySet,
     name: "로프 매듭 장난감 세트",
     brand: "펫플레이",
     image: "https://loremflickr.com/300/300/rope,toy,colorful?lock=110",
