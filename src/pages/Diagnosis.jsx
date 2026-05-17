@@ -6,7 +6,6 @@ import BottomNav from '../components/BottomNav'
 import PageWrapper from '../components/PageWrapper'
 import Button from '../components/Button'
 import Badge from '../components/Badge'
-import Card from '../components/Card'
 import ProductCard from '../components/ProductCard'
 import { mockProducts } from '../data/mockData'
 
@@ -19,51 +18,60 @@ const categories = [
   { id: 'etc', label: '기타', emoji: '❓' },
 ]
 
+const loadingSteps = ['증상 수집 중', '데이터 매칭 중', '결과 생성 중']
+
 function LoadingScreen() {
+  const [currentStep, setCurrentStep] = useState(0)
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setCurrentStep(1), 1000)
+    const t2 = setTimeout(() => setCurrentStep(2), 2000)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [])
+
   return (
-    <div className="fixed inset-0 bg-[#F0F7FF] z-50 flex flex-col items-center justify-center" style={{ width: '390px', left: '50%', transform: 'translateX(-50%)' }}>
-      <motion.div
-        className="relative w-32 h-32 mb-8"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-      >
-        {/* Outer ring */}
-        <div className="absolute inset-0 rounded-full border-4 border-blue-100" />
-        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary" style={{ borderTopColor: '#3B82F6' }} />
-        {/* Inner */}
-        <div className="absolute inset-4 bg-blue-50 rounded-full flex items-center justify-center">
-          <motion.span
-            className="text-3xl"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            🔬
-          </motion.span>
-        </div>
-      </motion.div>
-
-      <motion.div
-        className="text-center"
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-      >
-        <p className="text-lg font-bold text-gray-800 mb-1">AI가 분석하고 있어요</p>
-        <p className="text-sm text-gray-500">잠시만 기다려주세요...</p>
-      </motion.div>
-
-      {/* Progress dots */}
-      <div className="flex gap-2 mt-6">
-        {['증상 분석', '데이터 매칭', '결과 생성'].map((step, i) => (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+      style={{ width: '390px', left: '50%', transform: 'translateX(-50%)', background: '#F0F7FF' }}
+    >
+      {/* 이퀄라이저 바 */}
+      <div className="flex items-end gap-1.5 mb-10" style={{ height: 56 }}>
+        {[0.6, 1, 0.75, 1, 0.5, 0.85, 0.4].map((scale, i) => (
           <motion.div
-            key={step}
-            className="flex items-center gap-1.5"
-            initial={{ opacity: 0.3 }}
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.5 }}
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <span className="text-xs text-gray-500">{step}</span>
-          </motion.div>
+            key={i}
+            className="w-3 rounded-full"
+            style={{ backgroundColor: '#3B82F6', opacity: 0.3 + i * 0.07 }}
+            animate={{ height: ['12px', `${44 * scale}px`, '12px'] }}
+            transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.1, ease: 'easeInOut' }}
+          />
+        ))}
+      </div>
+
+      {/* 텍스트 */}
+      <p className="text-lg font-bold text-gray-800 mb-1">AI가 분석하고 있어요</p>
+      <p className="text-sm text-gray-400 mb-10">잠시만 기다려주세요</p>
+
+      {/* 스텝 */}
+      <div className="w-60 space-y-3">
+        {loadingSteps.map((label, i) => (
+          <div key={label} className="flex items-center gap-3">
+            <motion.div
+              className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
+              animate={{
+                backgroundColor: currentStep > i ? '#3B82F6' : currentStep === i ? '#93C5FD' : '#E5E7EB',
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              {currentStep > i && (
+                <svg width="8" height="8" viewBox="0 0 10 8" fill="none">
+                  <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </motion.div>
+            <span className={`text-sm ${currentStep >= i ? 'text-gray-700 font-medium' : 'text-gray-300'}`}>
+              {label}
+            </span>
+          </div>
         ))}
       </div>
     </div>
@@ -192,7 +200,6 @@ function DiagnosisResult({ result }) {
 }
 
 export default function Diagnosis() {
-  const navigate = useNavigate()
   const {
     pets, activePetId,
     diagnosisCategory, diagnosisSymptom, diagnosisResult, isDiagnosing,

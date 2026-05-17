@@ -216,38 +216,75 @@ function HealthContentArticle({ content, onClose }) {
 
 // ── 펫 프로필 카드 ──
 function PetCard({ pet, levelData, isActive, onClick }) {
+  const score = levelData?.score ?? 0
+  const maxScore = levelData?.maxScore ?? 100
+  const pct = Math.round((score / maxScore) * 100)
+
   return (
     <motion.div
       onClick={onClick}
-      className={`w-full rounded-2xl p-4 flex items-center gap-3 cursor-pointer transition-all
-        ${isActive ? 'bg-white/25 border-2 border-white/50' : 'bg-white/10 border-2 border-white/20'}`}
-      whileTap={{ scale: 0.97 }}
+      className="w-full cursor-pointer"
+      whileTap={{ scale: 0.98 }}
     >
-      <div className="relative">
-        <img
-          src={pet.type === 'cat' ? catImage : dogImage}
-          alt={pet.name}
-          className="w-14 h-14 rounded-xl object-cover border-2 border-white/50"
-        />
-        {isActive && (
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white flex items-center justify-center">
-            <span className="text-[10px] text-white font-bold">✓</span>
+      <div
+        className={`rounded-2xl p-4 flex items-center gap-4 transition-all ${
+          isActive
+            ? 'bg-white/20 border border-white/40'
+            : 'bg-white/8 border border-white/15'
+        }`}
+        style={{ backdropFilter: 'blur(8px)' }}
+      >
+        {/* 사진 */}
+        <div className="relative flex-shrink-0">
+          <div className={`w-[68px] h-[68px] rounded-2xl overflow-hidden border-2 ${isActive ? 'border-white/70' : 'border-white/30'}`}>
+            <img
+              src={pet.type === 'cat' ? catImage : dogImage}
+              alt={pet.name}
+              className="w-full h-full object-cover"
+            />
           </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <h2 className="text-white font-bold text-base truncate">{pet.name}</h2>
-          {levelData && (
-            <span className="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">
-              Lv.{levelData.level}
-            </span>
+          {isActive && (
+            <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center shadow-sm">
+              <svg width="9" height="9" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
           )}
         </div>
-        <p className="text-blue-100 text-xs">{pet.breed || '믹스'} · {pet.age || '?'}살 · {pet.gender || '미선택'}</p>
-        {pet.allergy && (
-          <p className="text-blue-200 text-[10px] mt-0.5 truncate">알러지: {pet.allergy}</p>
-        )}
+
+        {/* 정보 */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h2 className="text-white font-bold text-lg leading-tight truncate">{pet.name}</h2>
+            {levelData && (
+              <span className="text-[11px] bg-white/25 text-white px-2 py-0.5 rounded-full font-semibold flex-shrink-0">
+                Lv.{levelData.level}
+              </span>
+            )}
+          </div>
+          <p className="text-blue-100/80 text-xs mb-2.5">
+            {pet.breed || '믹스'} · {pet.age || '?'}살 · {pet.gender || '미선택'}
+          </p>
+
+          {/* 레벨 게이지 */}
+          {levelData && (
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-[10px] text-white/60">{levelData.title}</span>
+                <span className="text-[10px] text-white/80 font-semibold">{score} / {maxScore}</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-white/15 overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: 'linear-gradient(90deg, #60A5FA, #A78BFA)' }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${pct}%` }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   )
@@ -258,15 +295,18 @@ function AddPetCard({ onClick }) {
   return (
     <motion.div
       onClick={onClick}
-      className="w-full rounded-2xl border-2 border-dashed border-white/40 flex items-center justify-center gap-4 py-5 px-5 cursor-pointer bg-white/5"
+      className="w-full rounded-2xl border border-dashed border-white/30 flex items-center gap-4 py-5 px-5 cursor-pointer"
+      style={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(255,255,255,0.07)' }}
       whileTap={{ scale: 0.97 }}
     >
-      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-        <span className="text-white text-3xl font-light leading-none">+</span>
+      <div className="w-[68px] h-[68px] bg-white/15 rounded-2xl flex items-center justify-center flex-shrink-0 border border-white/20">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
       </div>
       <div>
         <p className="text-white font-semibold text-sm">반려동물 추가</p>
-        <p className="text-white/60 text-xs mt-0.5">새 펫을 등록해보세요</p>
+        <p className="text-white/50 text-xs mt-0.5">새 펫을 등록해보세요</p>
       </div>
     </motion.div>
   )
@@ -347,32 +387,40 @@ export default function Home() {
 
       <PageWrapper>
       {/* Header */}
-      <div className="bg-gradient-to-b from-primary-deep to-primary pt-12 pb-5 px-4">
-        <div className="flex items-center justify-between mb-4">
+      <div
+        className="pt-10 pb-4 px-4 mx-2 mt-2 rounded-[28px]"
+        style={{ background: 'linear-gradient(150deg, #1E4FD8 0%, #3B82F6 60%, #60A5FA 100%)' }}
+      >
+        {/* 상단 바 */}
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-xl font-bold text-white">펫밀리</h1>
+            <p className="text-blue-300 text-xs font-medium mb-0.5">
+              {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
+            </p>
+            <h1 className="text-white text-xl font-bold tracking-tight">펫밀리</h1>
           </div>
-          <motion.button whileTap={{ scale: 0.9 }} className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+          <motion.button
+            whileTap={{ scale: 0.88 }}
+            className="w-10 h-10 rounded-full flex items-center justify-center border border-white/20"
+            style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
             </svg>
           </motion.button>
         </div>
 
-        {/* 펫 프로필 캐러셀 - overflow-hidden으로 다음 슬라이드 완전히 숨김 */}
+        {/* 캐러셀 */}
         <div className="overflow-hidden -mx-4">
           <div
             ref={carouselRef}
             onScroll={handleCarouselScroll}
-            className="flex overflow-x-auto scrollbar-hide pb-2"
+            className="flex overflow-x-auto scrollbar-hide"
             style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
           >
             {pets.map(pet => (
-              <div
-                key={pet.id}
-                className="flex-shrink-0 w-full px-4"
-                style={{ scrollSnapAlign: 'start' }}
-              >
+              <div key={pet.id} className="flex-shrink-0 w-full px-4" style={{ scrollSnapAlign: 'start' }}>
                 <PetCard
                   pet={pet}
                   levelData={levelData[pet.id]}
@@ -381,27 +429,19 @@ export default function Home() {
                 />
               </div>
             ))}
-            {/* "+" 카드: 스크롤해야만 등장 */}
-            <div
-              className="flex-shrink-0 w-full px-4"
-              style={{ scrollSnapAlign: 'start' }}
-            >
+            <div className="flex-shrink-0 w-full px-4" style={{ scrollSnapAlign: 'start' }}>
               <AddPetCard onClick={() => navigate('/pet-setup?mode=add')} />
             </div>
           </div>
         </div>
 
-        {/* 슬라이드 인디케이터 */}
-        <div className="flex justify-center gap-1.5 mt-2.5 pb-1">
+        {/* 인디케이터 */}
+        <div className="flex justify-center gap-1.5 mt-4">
           {Array.from({ length: totalSlides }).map((_, i) => (
             <motion.div
               key={i}
               className="rounded-full bg-white"
-              animate={{
-                width: i === carouselIndex ? 16 : 6,
-                height: 6,
-                opacity: i === carouselIndex ? 1 : 0.35,
-              }}
+              animate={{ width: i === carouselIndex ? 20 : 6, height: 6, opacity: i === carouselIndex ? 1 : 0.3 }}
               transition={{ duration: 0.25 }}
             />
           ))}
@@ -570,14 +610,17 @@ export default function Home() {
                   key={content.id}
                   type="button"
                   onClick={() => setSelectedContent(content)}
-                  className={`flex-shrink-0 w-52 bg-gradient-to-br ${content.color} rounded-2xl p-4 cursor-pointer text-left`}
+                  className="flex-shrink-0 w-52 bg-white rounded-2xl p-4 cursor-pointer shadow-sm border border-gray-100 text-left"
                   whileTap={{ scale: 0.97 }}
                 >
-                  <Badge variant="blue" className="bg-white/20 text-white border-0 text-xs mb-2">
+                  <span
+                    className="inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-2"
+                    style={{ backgroundColor: '#EFF6FF', color: '#0147EB' }}
+                  >
                     {content.tag}
-                  </Badge>
-                  <p className="text-white font-bold text-sm leading-tight">{content.title}</p>
-                  <p className="text-white/70 text-xs mt-1">{content.subtitle}</p>
+                  </span>
+                  <p className="text-gray-900 font-bold text-sm leading-tight">{content.title}</p>
+                  <p className="text-gray-400 text-xs mt-1">{content.subtitle}</p>
                 </motion.button>
               ))}
             </div>

@@ -246,22 +246,100 @@ export const mockProducts = [
   },
 ]
 
-export const mockDiagnosisResult = {
-  summary: "초코의 피부 증상을 분석했어요",
-  disease: "아토피성 피부염",
-  possibility: 72,
-  secondaryDisease: "접촉성 피부염",
-  secondaryPossibility: 45,
-  cautions: [
-    "긁지 못하게 넥카라 착용 권장",
-    "목욕 횟수 줄이기 (주 1회 이하)",
-    "음식 알러지 원인 파악 필요",
-    "산책 후 발바닥 세척",
-  ],
-  guide: "저자극 샴푸 사용을 권장하며, 오메가3가 풍부한 사료로 교체를 고려해보세요. 피부 보습제를 꾸준히 발라주면 증상 완화에 도움이 됩니다.",
-  hospitalRecommended: true,
-  urgency: "중간",
+export const mockDiagnosisResultByCategory = {
+  skin: {
+    disease: "아토피성 피부염",
+    possibility: 72,
+    secondaryDisease: "접촉성 피부염",
+    secondaryPossibility: 45,
+    cautions: [
+      "긁지 못하게 넥카라 착용 권장",
+      "목욕 횟수 줄이기 (주 1회 이하)",
+      "음식 알러지 원인 파악 필요",
+      "산책 후 발바닥 세척",
+    ],
+    guide: "저자극 샴푸 사용을 권장하며, 오메가3가 풍부한 사료로 교체를 고려해보세요. 피부 보습제를 꾸준히 발라주면 증상 완화에 도움이 됩니다.",
+    hospitalRecommended: true,
+    urgency: "중간",
+  },
+  digest: {
+    disease: "과민성 장증후군",
+    possibility: 68,
+    secondaryDisease: "급성 위장염",
+    secondaryPossibility: 38,
+    cautions: [
+      "24시간 금식 후 소화 상태 확인",
+      "기름진 음식 및 간식 일시 중단",
+      "물은 소량씩 자주 급여",
+      "구토 또는 혈변 시 즉시 병원 방문",
+    ],
+    guide: "소화가 잘 되는 처방식 사료로 임시 교체를 권장합니다. 식사량을 줄이고 횟수를 늘려 소화기관에 부담을 덜어주세요. 증상이 48시간 이상 지속되면 반드시 수의사 진료를 받으세요.",
+    hospitalRecommended: true,
+    urgency: "보통",
+  },
+  breath: {
+    disease: "기관지염",
+    possibility: 65,
+    secondaryDisease: "켄넬코프",
+    secondaryPossibility: 42,
+    cautions: [
+      "연기, 먼지, 향수 등 자극적인 환경 피하기",
+      "산책 시 목 줄 대신 하네스 착용 권장",
+      "실내 적정 습도(50~60%) 유지",
+      "기침이 잦거나 호흡 곤란 시 즉시 병원 방문",
+    ],
+    guide: "충분한 휴식과 환기를 통해 호흡기 자극을 최소화하세요. 수분 섭취를 늘리고 가습기를 사용해 건조함을 줄여주세요. 증상이 1주일 이상 지속되거나 악화되면 반드시 진료가 필요합니다.",
+    hospitalRecommended: true,
+    urgency: "높음",
+  },
+  eyes: {
+    disease: "결막염",
+    possibility: 70,
+    secondaryDisease: "비루관 막힘",
+    secondaryPossibility: 35,
+    cautions: [
+      "눈 주위를 손으로 만지거나 긁지 못하게 관리",
+      "눈곱은 깨끗한 거즈로 부드럽게 닦아주기",
+      "수영장·모래사장 등 자극적인 환경 피하기",
+      "눈 충혈·분비물이 심해지면 즉시 병원 방문",
+    ],
+    guide: "생리식염수로 눈 주위를 하루 1~2회 세척해주세요. 항균 성분이 있는 안과용 세정제 사용을 고려하고, 눈물 자국이 심한 경우 눈물 전용 간식도 도움이 될 수 있습니다.",
+    hospitalRecommended: false,
+    urgency: "낮음",
+  },
+  behavior: {
+    disease: "분리불안",
+    possibility: 60,
+    secondaryDisease: "인지기능 장애",
+    secondaryPossibility: 30,
+    cautions: [
+      "외출 전 과도한 인사나 스킨십 자제",
+      "규칙적인 운동과 놀이로 에너지 발산",
+      "혼자 있는 시간을 점진적으로 늘려가기",
+      "파괴적 행동 시 혼내지 말고 무시하기",
+    ],
+    guide: "하루 30분 이상 충분한 산책과 놀이 시간을 확보하세요. 혼자 있는 연습을 짧은 시간부터 시작해 점진적으로 늘려가는 것이 효과적입니다. 증상이 심각하다면 동물행동 전문 수의사 상담을 권장합니다.",
+    hospitalRecommended: false,
+    urgency: "낮음",
+  },
+  etc: {
+    disease: "호르몬 불균형",
+    possibility: 55,
+    secondaryDisease: "신장 기능 저하",
+    secondaryPossibility: 40,
+    cautions: [
+      "물 섭취량과 소변량 변화 주의 깊게 관찰",
+      "체중 및 식욕 변화 일지 작성 권장",
+      "임의로 약물이나 영양제 투여 금지",
+      "증상이 지속되면 지체 없이 병원 방문",
+    ],
+    guide: "정기적인 건강검진(혈액검사, 소변검사)을 통해 내부 장기 상태를 확인하세요. 균형 잡힌 식단과 충분한 수분 섭취가 중요합니다. 기타 이상 징후가 동반될 경우 즉시 전문가 상담을 받으시기 바랍니다.",
+    hospitalRecommended: true,
+    urgency: "높음",
+  },
 }
+
+export const mockDiagnosisResult = mockDiagnosisResultByCategory.skin
 
 export const mockHealthContents = [
   {
