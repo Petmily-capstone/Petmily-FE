@@ -206,34 +206,35 @@ export default function Diagnosis() {
     setDiagnosisCategory, setDiagnosisSymptom, startDiagnosis, clearDiagnosis,
   } = useAppStore()
   const pet = pets.find(p => p.id === activePetId) || pets[0]
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [imagePreviewUrl, setImagePreviewUrl] = useState('')
+  const [selectedMedia, setSelectedMedia] = useState(null)
+  const [mediaPreviewUrl, setMediaPreviewUrl] = useState('')
   const fileInputRef = useRef(null)
 
   useEffect(() => {
-    if (!selectedImage) {
-      setImagePreviewUrl('')
+    if (!selectedMedia) {
+      setMediaPreviewUrl('')
       return
     }
 
-    const objectUrl = URL.createObjectURL(selectedImage)
-    setImagePreviewUrl(objectUrl)
+    const objectUrl = URL.createObjectURL(selectedMedia)
+    setMediaPreviewUrl(objectUrl)
 
     return () => URL.revokeObjectURL(objectUrl)
-  }, [selectedImage])
+  }, [selectedMedia])
 
-  const handleImageSelect = (event) => {
+  const handleMediaSelect = (event) => {
     const file = event.target.files?.[0]
     if (!file) return
-    setSelectedImage(file)
+    setSelectedMedia(file)
   }
 
-  const handleImageRemove = () => {
-    setSelectedImage(null)
+  const handleMediaRemove = () => {
+    setSelectedMedia(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const canStart = diagnosisCategory || diagnosisSymptom.trim() || selectedImage
+  const selectedMediaType = selectedMedia?.type.startsWith('video/') ? 'video' : 'image'
+  const canStart = diagnosisCategory || diagnosisSymptom.trim() || selectedMedia
 
   return (
     <PageWrapper>
@@ -297,32 +298,44 @@ export default function Diagnosis() {
               />
             </div>
 
-            {/* Image upload */}
+            {/* Media upload */}
             <div className="bg-white rounded-2xl shadow-sm p-4">
-              <h3 className="font-bold text-gray-800 mb-3">사진 첨부 (선택)</h3>
+              <h3 className="font-bold text-gray-800 mb-3">사진/동영상 첨부 (선택)</h3>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
-                onChange={handleImageSelect}
+                accept="image/*,video/*"
+                onChange={handleMediaSelect}
                 className="hidden"
               />
-              <motion.button
-                type="button"
+              <motion.div
+                role="button"
+                tabIndex={0}
                 onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click()
+                }}
                 className="w-full border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center gap-2 bg-gray-50"
                 whileTap={{ scale: 0.98 }}
               >
-                {imagePreviewUrl ? (
+                {mediaPreviewUrl ? (
                   <>
-                    <img
-                      src={imagePreviewUrl}
-                      alt="Selected"
-                      className="w-full max-h-56 rounded-xl object-cover"
-                    />
+                    {selectedMediaType === 'video' ? (
+                      <video
+                        src={mediaPreviewUrl}
+                        controls
+                        className="w-full max-h-56 rounded-xl object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={mediaPreviewUrl}
+                        alt="Selected"
+                        className="w-full max-h-56 rounded-xl object-cover"
+                      />
+                    )}
                     <div className="text-center">
-                      <p className="text-sm font-medium text-gray-700">{selectedImage?.name}</p>
-                      <p className="text-xs text-gray-400 mt-1">이 사진 영역을 다시 누르면 사진을 바꿀 수 있습니다.</p>
+                      <p className="text-sm font-medium text-gray-700">{selectedMedia?.name}</p>
+                      <p className="text-xs text-gray-400 mt-1">이 영역을 다시 누르면 파일을 바꿀 수 있습니다.</p>
                     </div>
                   </>
                 ) : (
@@ -334,19 +347,19 @@ export default function Diagnosis() {
                         <polyline points="21,15 16,10 5,21"/>
                       </svg>
                     </div>
-                    <p className="text-sm font-medium text-gray-600">사진 추가</p>
+                    <p className="text-sm font-medium text-gray-600">사진 또는 동영상 추가</p>
                     <p className="text-xs text-gray-400">피부, 눈, 귀 등 증상 부위를 촬영해주세요</p>
                   </>
                 )}
-              </motion.button>
-              {selectedImage && (
+              </motion.div>
+              {selectedMedia && (
                 <div className="mt-3 flex justify-end">
                   <button
                     type="button"
-                    onClick={handleImageRemove}
+                    onClick={handleMediaRemove}
                     className="text-xs font-medium text-red-500"
                   >
-                    사진 제거
+                    첨부 파일 제거
                   </button>
                 </div>
               )}
