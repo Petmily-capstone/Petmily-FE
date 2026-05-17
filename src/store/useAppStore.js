@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { mockPet, mockLevel, mockDiagnosisResult } from '../data/mockData';
+import { mockPet, mockLevel, mockDiagnosisResultByCategory } from '../data/mockData';
 
 const TODAY = () => new Date().toISOString().slice(0, 10);
 
@@ -59,7 +59,7 @@ const useAppStore = create((set, get) => ({
 
   // 최초 펫 등록 (PetSetup 초기 플로우)
   registerPet: (petData) => {
-    const { pets, levelData, quickCheck } = get();
+    const { pets } = get();
     const age = petData.birthYear
       ? new Date().getFullYear() - parseInt(petData.birthYear) + 1
       : petData.age || 1;
@@ -125,13 +125,22 @@ const useAppStore = create((set, get) => ({
   startDiagnosis: () => {
     set({ isDiagnosing: true, diagnosisResult: null });
     setTimeout(() => {
-      const { pets, activePetId } = get();
+      const { pets, activePetId, diagnosisCategory } = get();
       const activePet = pets.find((p) => p.id === activePetId) || pets[0];
+      const summaryLabels = {
+        skin: '아이의 피부 상태를 분석했어요',
+        digest: '아이의 소화 상태를 분석했어요',
+        breath: '아이의 호흡 상태를 분석했어요',
+        eyes: '아이의 눈·귀 상태를 분석했어요',
+        behavior: '아이의 행동 패턴을 분석했어요',
+        etc: '아이의 전반적인 상태를 분석했어요',
+      };
+      const base = mockDiagnosisResultByCategory[diagnosisCategory] || mockDiagnosisResultByCategory.skin;
       set({
         isDiagnosing: false,
         diagnosisResult: {
-          ...mockDiagnosisResult,
-          summary: `${activePet.name}의 피부 증상을 분석했어요`,
+          ...base,
+          summary: summaryLabels[diagnosisCategory] || summaryLabels.skin,
         },
       });
     }, 3000);

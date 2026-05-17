@@ -262,12 +262,15 @@ export default function PetSetup() {
           </label>
           <div className="bg-white rounded-xl border-2 border-gray-200">
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={petData.birthYear}
-              onChange={(e) => update('birthYear', e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                update('birthYear', val)
+              }}
               placeholder="2021"
-              min="2000"
-              max="2025"
+              maxLength={4}
               className="w-full px-4 py-3.5 text-sm bg-transparent outline-none"
             />
           </div>
