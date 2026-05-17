@@ -47,7 +47,7 @@ export default function MyPage() {
             </div>
           </div>
           <div>
-            <h2 className="text-white font-bold text-lg">김하나</h2>
+            <h2 className="text-white font-bold text-lg">멋진 집사</h2>
             <p className="text-blue-200 text-sm">hana@petmily.com</p>
             <div className="flex gap-1.5 mt-1">
               <Badge variant="blue" className="bg-white/20 text-white border-0 text-xs">

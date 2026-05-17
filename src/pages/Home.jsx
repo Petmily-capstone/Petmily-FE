@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import useAppStore from '../store/useAppStore'
 import BottomNav from '../components/BottomNav'
 import PageWrapper from '../components/PageWrapper'
@@ -31,14 +31,9 @@ const CHECK_GROUPS = [
   },
 ]
 
-// ── Quick Check 모달 (드래그로 높이 조절 가능한 바텀시트) ──
+// ── Quick Check 모달 (고정 높이 바텀시트) ──
 function QuickCheckModal({ group, onConfirm, onCancel }) {
   const [checked, setChecked] = useState([])
-
-  // 드래그 Y 값: 위로 드래그 = 음수, 아래로 드래그 = 양수
-  const dragY = useMotionValue(0)
-  // dragY를 시트 높이(vh)로 변환: y=0 → 60vh, y=-200 → 88vh
-  const sheetHeight = useTransform(dragY, [-220, 0], ['92vh', '60vh'])
 
   const toggle = (key) => {
     setChecked(prev =>
@@ -46,15 +41,9 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
     )
   }
 
-  const handleDragEnd = (_, info) => {
-    // 아래로 120px 이상 드래그 시 닫기
-    if (info.offset.y > 120) onCancel()
-    // 위로 당겼다 놓으면 dragY는 자동으로 constraint 내 위치 유지
-  }
-
   return (
     <motion.div
-      className="fixed z-50 flex items-end justify-center"
+      className="fixed z-[60] flex items-end justify-center"
       style={{
         top: 0, bottom: 0,
         width: '390px', left: '50%', transform: 'translateX(-50%)',
@@ -71,26 +60,22 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
         animate={{ opacity: 1 }}
       />
 
-      {/* 드래그 가능한 시트 */}
+      {/* 고정 높이 시트 */}
       <motion.div
-        drag="y"
-        dragConstraints={{ top: -220, bottom: 0 }}
-        dragElastic={{ top: 0.15, bottom: 0.4 }}
-        onDragEnd={handleDragEnd}
-        style={{ y: dragY, height: sheetHeight }}
+        style={{ height: '60vh' }}
         className="relative w-full bg-white rounded-t-3xl flex flex-col overflow-hidden"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       >
-        {/* 드래그 핸들 + 헤더 (고정) */}
-        <div className="px-6 pt-4 pb-3 shrink-0 cursor-grab active:cursor-grabbing">
+        {/* 헤더 (고정) */}
+        <div className="px-6 pt-4 pb-3 shrink-0">
           <div className="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-4" />
           <h3 className="text-lg font-bold text-gray-800 mb-0.5">
             오늘 {group.key} 했나요?
           </h3>
-          <p className="text-sm text-gray-400">위로 드래그하면 크게 볼 수 있어요 (+2점/개)</p>
+          <p className="text-sm text-gray-400">체크한 항목마다 +2점이 올라요</p>
         </div>
 
         {/* 체크리스트 (스크롤) */}
@@ -122,7 +107,7 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
         </div>
 
         {/* 버튼 영역 (항상 하단 고정) */}
-        <div className="px-6 pt-3 pb-8 shrink-0 border-t border-gray-100 flex gap-3 bg-white">
+        <div className="px-6 pt-3 pb-6 shrink-0 border-t border-gray-100 flex gap-3 bg-white">
           <button
             onClick={onCancel}
             className="flex-1 py-3.5 rounded-2xl border-2 border-gray-200 text-gray-500 font-semibold"
@@ -137,6 +122,93 @@ function QuickCheckModal({ group, onConfirm, onCancel }) {
             완료 ({checked.length > 0 ? `+${checked.length * 2}점` : '0점'})
           </motion.button>
         </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function HealthContentArticle({ content, onClose }) {
+  return (
+    <motion.div
+      className="fixed z-[70] flex items-center justify-center bg-black/45 px-4 py-8"
+      style={{
+        top: 0, bottom: 0,
+        width: '390px', left: '50%', transform: 'translateX(-50%)',
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="w-full max-h-[82vh] overflow-y-auto bg-[#F7FAFC] rounded-2xl shadow-2xl"
+        initial={{ opacity: 0, y: 24, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 24, scale: 0.96 }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={`bg-gradient-to-br ${content.color} px-5 pt-5 pb-7 text-white rounded-t-2xl`}>
+          <div className="flex items-start justify-between gap-3 mb-6">
+            <div className="flex items-center gap-2">
+              <Badge variant="blue" className="bg-white/20 text-white border-0 text-xs">
+                {content.tag}
+              </Badge>
+              <span className="text-xs text-white/75">{content.category}</span>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"
+              aria-label="건강 콘텐츠 닫기"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <div className="text-5xl mb-4">{content.heroEmoji}</div>
+          <h2 className="text-2xl font-bold leading-tight mb-3">{content.title}</h2>
+          <p className="text-sm text-white/85 leading-relaxed">{content.subtitle}</p>
+          <div className="flex items-center gap-2 mt-5 text-xs text-white/70">
+            <span>{content.date}</span>
+            <span className="w-1 h-1 rounded-full bg-white/50" />
+            <span>{content.readTime} 읽기</span>
+          </div>
+        </div>
+
+        <article className="px-5 py-6">
+          <p className="text-base font-medium text-gray-800 leading-7 mb-6">
+            {content.summary}
+          </p>
+
+          <div className="space-y-4">
+            {content.sections.map((section, index) => (
+              <section key={section.heading} className="bg-white rounded-2xl p-5 shadow-sm">
+                <span className="text-xs font-bold text-primary">0{index + 1}</span>
+                <h3 className="text-lg font-bold text-gray-900 mt-2 mb-3 leading-snug">
+                  {section.heading}
+                </h3>
+                <p className="text-sm text-gray-600 leading-6">
+                  {section.body}
+                </p>
+              </section>
+            ))}
+          </div>
+
+          <section className="mt-5 bg-gray-900 rounded-2xl p-5 text-white">
+            <p className="text-sm font-bold mb-3">오늘 바로 체크할 것</p>
+            <div className="space-y-2.5">
+              {content.tips.map(tip => (
+                <div key={tip} className="flex items-start gap-2">
+                  <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary-light flex-shrink-0" />
+                  <p className="text-sm text-gray-100 leading-5">{tip}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </article>
       </motion.div>
     </motion.div>
   )
@@ -221,6 +293,7 @@ export default function Home() {
 
   const [activeModal, setActiveModal] = useState(null) // group key or null
   const [carouselIndex, setCarouselIndex] = useState(0)
+  const [selectedContent, setSelectedContent] = useState(null)
   const carouselRef = useRef(null)
 
   // 각 슬라이드가 clientWidth와 동일하므로 scrollLeft / clientWidth 로 인덱스 계산
@@ -263,12 +336,20 @@ export default function Home() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {selectedContent && (
+          <HealthContentArticle
+            content={selectedContent}
+            onClose={() => setSelectedContent(null)}
+          />
+        )}
+      </AnimatePresence>
+
       <PageWrapper>
       {/* Header */}
       <div className="bg-gradient-to-b from-primary-deep to-primary pt-12 pb-5 px-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-blue-200 text-sm">안녕하세요 👋</p>
             <h1 className="text-xl font-bold text-white">펫밀리</h1>
           </div>
           <motion.button whileTap={{ scale: 0.9 }} className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -455,16 +536,6 @@ export default function Home() {
               )
             })}
 
-            {doneCount === totalGroups && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-3 bg-green-50 rounded-xl p-3 flex items-center gap-2"
-              >
-                <span>🎉</span>
-                <p className="text-sm font-medium text-green-700">오늘 모든 체크 완료! 보너스 +3점</p>
-              </motion.div>
-            )}
           </motion.div>
 
           {/* AI Comment */}
@@ -495,9 +566,11 @@ export default function Home() {
             </div>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4">
               {mockHealthContents.map(content => (
-                <motion.div
+                <motion.button
                   key={content.id}
-                  className={`flex-shrink-0 w-52 bg-gradient-to-br ${content.color} rounded-2xl p-4 cursor-pointer`}
+                  type="button"
+                  onClick={() => setSelectedContent(content)}
+                  className={`flex-shrink-0 w-52 bg-gradient-to-br ${content.color} rounded-2xl p-4 cursor-pointer text-left`}
                   whileTap={{ scale: 0.97 }}
                 >
                   <Badge variant="blue" className="bg-white/20 text-white border-0 text-xs mb-2">
@@ -505,32 +578,11 @@ export default function Home() {
                   </Badge>
                   <p className="text-white font-bold text-sm leading-tight">{content.title}</p>
                   <p className="text-white/70 text-xs mt-1">{content.subtitle}</p>
-                </motion.div>
+                </motion.button>
               ))}
             </div>
           </motion.div>
 
-          {/* AI Diagnosis shortcut */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            onClick={() => navigate('/diagnosis')}
-            className="bg-white rounded-2xl shadow-sm p-4 flex items-center justify-between cursor-pointer border-2 border-blue-100"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <span className="text-2xl">🔬</span>
-              </div>
-              <div>
-                <p className="font-bold text-gray-800">AI 증상 진단</p>
-                <p className="text-xs text-gray-500">{activePet.name}의 증상을 분석해드려요</p>
-              </div>
-            </div>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2.5">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </motion.div>
         </motion.div>
       </AnimatePresence>
 
