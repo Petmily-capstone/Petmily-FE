@@ -71,7 +71,7 @@ export default function Cart() {
                     className={`flex items-center gap-3 p-4 ${i < cartItems.length - 1 ? 'border-b border-gray-50' : ''}`}
                   >
                     <img
-                      src={item.image || `https://picsum.photos/80/80?random=${item.id}`}
+                      src={item.image}
                       alt={item.name}
                       className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
                     />
