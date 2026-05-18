@@ -26,7 +26,7 @@ export const mockLevel = {
   level: 3,
   score: 62,
   maxScore: 100,
-  badges: ["첫 진단", "7일 연속"],
+  badges: ["첫 진단"],
   title: "건강 지킴이",
 }
 

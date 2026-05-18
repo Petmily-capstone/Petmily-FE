@@ -18,6 +18,7 @@ const INITIAL_PET = { ...mockPet, id: 'pet-1' };
 const useAppStore = create((set, get) => ({
   // Auth
   isLoggedIn: false,
+  userEmail: '',
   hasCompletedOnboarding: false,
   hasRegisteredPet: false,
 
@@ -40,6 +41,7 @@ const useAppStore = create((set, get) => ({
   diagnosisCategory: null,
   diagnosisResult: null,
   isDiagnosing: false,
+  diagnosisHistory: [],
 
   // Shop
   selectedCategory: '전체',
@@ -53,7 +55,7 @@ const useAppStore = create((set, get) => ({
 
   completeOnboarding: () => set({ hasCompletedOnboarding: true }),
 
-  login: () => set({ isLoggedIn: true }),
+  login: (email = '') => set({ isLoggedIn: true, userEmail: email }),
 
   setActivePet: (petId) => set({ activePetId: petId }),
 
@@ -125,8 +127,7 @@ const useAppStore = create((set, get) => ({
   startDiagnosis: () => {
     set({ isDiagnosing: true, diagnosisResult: null });
     setTimeout(() => {
-      const { pets, activePetId, diagnosisCategory } = get();
-      const activePet = pets.find((p) => p.id === activePetId) || pets[0];
+      const { diagnosisCategory, diagnosisSymptom, diagnosisHistory } = get();
       const summaryLabels = {
         skin: '아이의 피부 상태를 분석했어요',
         digest: '아이의 소화 상태를 분석했어요',
@@ -135,13 +136,25 @@ const useAppStore = create((set, get) => ({
         behavior: '아이의 행동 패턴을 분석했어요',
         etc: '아이의 전반적인 상태를 분석했어요',
       };
+      const categoryLabels = {
+        skin: '피부', digest: '소화', breath: '호흡',
+        eyes: '눈·귀', behavior: '행동', etc: '기타',
+      };
       const base = mockDiagnosisResultByCategory[diagnosisCategory] || mockDiagnosisResultByCategory.skin;
+      const result = {
+        ...base,
+        summary: summaryLabels[diagnosisCategory] || summaryLabels.skin,
+      };
+      const historyItem = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', ''),
+        symptom: diagnosisSymptom || categoryLabels[diagnosisCategory] || '기타',
+        result: result.title || '분석 완료',
+      };
       set({
         isDiagnosing: false,
-        diagnosisResult: {
-          ...base,
-          summary: summaryLabels[diagnosisCategory] || summaryLabels.skin,
-        },
+        diagnosisResult: result,
+        diagnosisHistory: [historyItem, ...diagnosisHistory],
       });
     }, 3000);
   },

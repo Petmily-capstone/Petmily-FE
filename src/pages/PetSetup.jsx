@@ -52,6 +52,10 @@ export default function PetSetup() {
     disease: '',
     allergy: '',
   });
+  const [yearOpen, setYearOpen] = useState(false);
+  const [monthOpen, setMonthOpen] = useState(false);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 2000 + 1 }, (_, i) => currentYear - i);
   const [useCustomBreed, setUseCustomBreed] = useState(false);
   const [customBreed, setCustomBreed] = useState('');
   const [noDisease, setNoDisease] = useState(false);
@@ -260,36 +264,100 @@ export default function PetSetup() {
           <label className="text-xs text-gray-500 mb-1 block">
             태어난 연도
           </label>
-          <div className="bg-white rounded-xl border-2 border-gray-200">
-            <input
-              type="text"
-              inputMode="numeric"
-              value={petData.birthYear}
-              onChange={(e) => {
-                const val = e.target.value.replace(/\D/g, '').slice(0, 4)
-                update('birthYear', val)
-              }}
-              placeholder="2021"
-              maxLength={4}
-              className="w-full px-4 py-3.5 text-sm bg-transparent outline-none"
-            />
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setYearOpen(p => !p)}
+              className={`w-full px-4 py-3.5 bg-white rounded-xl border-2 text-sm text-left flex items-center justify-between transition-colors ${
+                yearOpen ? 'border-primary' : 'border-gray-200'
+              }`}
+            >
+              <span className={petData.birthYear ? 'text-gray-800' : 'text-gray-400'}>
+                {petData.birthYear ? `${petData.birthYear}년` : '연도 선택'}
+              </span>
+              <motion.svg
+                animate={{ rotate: yearOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </motion.svg>
+            </button>
+            <AnimatePresence>
+              {yearOpen && (
+                <motion.ul
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                  className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-44 overflow-y-auto"
+                >
+                  {years.map(y => (
+                    <li key={y}>
+                      <button
+                        type="button"
+                        onClick={() => { update('birthYear', String(y)); setYearOpen(false); }}
+                        className={`w-full px-4 py-2.5 text-sm text-left hover:bg-blue-50 transition-colors ${
+                          petData.birthYear === String(y) ? 'text-primary font-semibold bg-blue-50' : 'text-gray-700'
+                        }`}
+                      >
+                        {y}년
+                      </button>
+                    </li>
+                  ))}
+                </motion.ul>
+              )}
+            </AnimatePresence>
           </div>
         </div>
         <div className="w-28">
           <label className="text-xs text-gray-500 mb-1 block">태어난 월</label>
-          <div className="bg-white rounded-xl border-2 border-gray-200">
-            <select
-              value={petData.birthMonth}
-              onChange={(e) => update('birthMonth', e.target.value)}
-              className="w-full px-3 py-3.5 text-sm bg-transparent outline-none appearance-none"
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMonthOpen(p => !p)}
+              className={`w-full px-4 py-3.5 bg-white rounded-xl border-2 text-sm text-left flex items-center justify-between transition-colors ${
+                monthOpen ? 'border-primary' : 'border-gray-200'
+              }`}
             >
-              <option value="">월</option>
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}월
-                </option>
-              ))}
-            </select>
+              <span className={petData.birthMonth ? 'text-gray-800' : 'text-gray-400'}>
+                {petData.birthMonth ? `${petData.birthMonth}월` : '월'}
+              </span>
+              <motion.svg
+                animate={{ rotate: monthOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </motion.svg>
+            </button>
+            <AnimatePresence>
+              {monthOpen && (
+                <motion.ul
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                  className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-44 overflow-y-auto"
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                    <li key={m}>
+                      <button
+                        type="button"
+                        onClick={() => { update('birthMonth', String(m)); setMonthOpen(false); }}
+                        className={`w-full px-4 py-2.5 text-sm text-left hover:bg-blue-50 transition-colors ${
+                          petData.birthMonth === String(m) ? 'text-primary font-semibold bg-blue-50' : 'text-gray-700'
+                        }`}
+                      >
+                        {m}월
+                      </button>
+                    </li>
+                  ))}
+                </motion.ul>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
