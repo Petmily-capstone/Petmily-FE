@@ -141,7 +141,7 @@ function HealthContentArticle({ content, onClose }) {
       onClick={onClose}
     >
       <motion.div
-        className="w-full max-h-[82vh] overflow-y-auto bg-[#F7FAFC] rounded-2xl shadow-2xl"
+        className="w-full max-h-[82vh] overflow-y-auto scrollbar-hide bg-[#F7FAFC] rounded-2xl shadow-2xl"
         initial={{ opacity: 0, y: 24, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 24, scale: 0.96 }}
@@ -215,11 +215,7 @@ function HealthContentArticle({ content, onClose }) {
 }
 
 // ── 펫 프로필 카드 ──
-function PetCard({ pet, levelData, isActive, onClick }) {
-  const score = levelData?.score ?? 0
-  const maxScore = levelData?.maxScore ?? 100
-  const pct = Math.round((score / maxScore) * 100)
-
+function PetCard({ pet, isActive, onClick }) {
   return (
     <motion.div
       onClick={onClick}
@@ -227,7 +223,7 @@ function PetCard({ pet, levelData, isActive, onClick }) {
       whileTap={{ scale: 0.98 }}
     >
       <div
-        className={`rounded-2xl p-4 flex items-center gap-4 transition-all ${
+        className={`rounded-2xl px-4 py-3 flex items-center gap-4 transition-all ${
           isActive
             ? 'bg-white/20 border border-white/40'
             : 'bg-white/8 border border-white/15'
@@ -254,36 +250,13 @@ function PetCard({ pet, levelData, isActive, onClick }) {
 
         {/* 정보 */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h2 className="text-white font-bold text-lg leading-tight truncate">{pet.name}</h2>
-            {levelData && (
-              <span className="text-[11px] bg-white/25 text-white px-2 py-0.5 rounded-full font-semibold flex-shrink-0">
-                Lv.{levelData.level}
-              </span>
-            )}
-          </div>
-          <p className="text-blue-100/80 text-xs mb-2.5">
+          <h2 className="text-white font-bold text-lg leading-tight truncate mb-1">{pet.name}</h2>
+          <p className="text-blue-100/80 text-xs mb-1">
             {pet.breed || '믹스'} · {pet.age || '?'}살 · {pet.gender || '미선택'}
           </p>
-
-          {/* 레벨 게이지 */}
-          {levelData && (
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-[10px] text-white/60">{levelData.title}</span>
-                <span className="text-[10px] text-white/80 font-semibold">{score} / {maxScore}</span>
-              </div>
-              <div className="w-full h-1.5 rounded-full bg-white/15 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg, #60A5FA, #A78BFA)' }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${pct}%` }}
-                  transition={{ duration: 0.8, ease: 'easeOut' }}
-                />
-              </div>
-            </div>
-          )}
+          <p className="text-blue-100/60 text-xs truncate">
+            🌿 알러지: {pet.allergy || '없음'}
+          </p>
         </div>
       </div>
     </motion.div>
@@ -386,33 +359,33 @@ export default function Home() {
       </AnimatePresence>
 
       <PageWrapper>
-      {/* Header */}
-      <div
-        className="pt-10 pb-4 px-4 mx-2 mt-2 rounded-[28px]"
-        style={{ background: 'linear-gradient(150deg, #1E4FD8 0%, #3B82F6 60%, #60A5FA 100%)' }}
-      >
-        {/* 상단 바 */}
-        <div className="flex items-center justify-between mb-5">
+        {/* 알림 버튼 (파란 블럭 위) */}
+        <div className="flex items-center justify-between px-4 pt-10 pb-2">
           <div>
-            <p className="text-blue-300 text-xs font-medium mb-0.5">
+            <p className="text-gray-400 text-xs font-medium mb-0.5">
               {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
             </p>
-            <h1 className="text-white text-xl font-bold tracking-tight">펫밀리</h1>
+            <h1 className="text-gray-800 text-xl font-bold tracking-tight">펫밀리</h1>
           </div>
           <motion.button
             whileTap={{ scale: 0.88 }}
-            className="w-10 h-10 rounded-full flex items-center justify-center border border-white/20"
-            style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}
+            className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 bg-white shadow-sm"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round">
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
               <path d="M13.73 21a2 2 0 01-3.46 0"/>
             </svg>
           </motion.button>
         </div>
 
+      {/* Header */}
+      <div
+        className="pt-2.5 pb-2.5 px-4 mx-2 mt-1 rounded-[28px]"
+        style={{ background: 'linear-gradient(150deg, #1E4FD8 0%, #3B82F6 60%, #60A5FA 100%)' }}
+      >
+
         {/* 캐러셀 */}
-        <div className="overflow-hidden -mx-4">
+        <div className="overflow-hidden mt-4">
           <div
             ref={carouselRef}
             onScroll={handleCarouselScroll}
@@ -420,23 +393,22 @@ export default function Home() {
             style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
           >
             {pets.map(pet => (
-              <div key={pet.id} className="flex-shrink-0 w-full px-4" style={{ scrollSnapAlign: 'start' }}>
+              <div key={pet.id} className="flex-shrink-0 w-full" style={{ scrollSnapAlign: 'start' }}>
                 <PetCard
                   pet={pet}
-                  levelData={levelData[pet.id]}
                   isActive={pet.id === activePetId}
                   onClick={() => setActivePet(pet.id)}
                 />
               </div>
             ))}
-            <div className="flex-shrink-0 w-full px-4" style={{ scrollSnapAlign: 'start' }}>
+            <div className="flex-shrink-0 w-full" style={{ scrollSnapAlign: 'start' }}>
               <AddPetCard onClick={() => navigate('/pet-setup?mode=add')} />
             </div>
           </div>
         </div>
 
         {/* 인디케이터 */}
-        <div className="flex justify-center gap-1.5 mt-4">
+        <div className="flex justify-center gap-1.5 mt-1">
           {Array.from({ length: totalSlides }).map((_, i) => (
             <motion.div
               key={i}
@@ -623,6 +595,7 @@ export default function Home() {
                   <p className="text-gray-400 text-xs mt-1">{content.subtitle}</p>
                 </motion.button>
               ))}
+              <div className="flex-shrink-0 w-4" />
             </div>
           </motion.div>
 

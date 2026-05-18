@@ -6,7 +6,7 @@ import PageWrapper from '../components/PageWrapper'
 import Badge from '../components/Badge'
 import ProgressBar from '../components/ProgressBar'
 import ProductCard from '../components/ProductCard'
-import { mockDiagnosisHistory, mockProducts } from '../data/mockData'
+import { mockProducts } from '../data/mockData'
 import catImage from '../assets/cat/cat.jpg'
 import dogImage from '../assets/dog/dog.jpg'
 
@@ -28,6 +28,8 @@ export default function MyPage() {
     wishlist,
     isPremium,
     subscribePremium,
+    diagnosisHistory,
+    userEmail,
   } = useAppStore();
   const activePet = pets.find((p) => p.id === activePetId) || pets[0];
   const activeLevelData = levelData[activePetId] || levelData[pets[0]?.id];
@@ -57,7 +59,7 @@ export default function MyPage() {
           </div>
           <div>
             <h2 className="text-white font-bold text-lg">멋진 집사</h2>
-            <p className="text-blue-200 text-sm">hana@petmily.com</p>
+            <p className="text-blue-200 text-sm">{userEmail}</p>
             <div className="flex gap-1.5 mt-1">
               <Badge
                 variant="blue"
@@ -191,29 +193,31 @@ export default function MyPage() {
             </Badge>
           </div>
 
-          {mockDiagnosisHistory.map((item) => (
-            <div
-              key={item.id}
-              className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-2 ${
-                !isPremium && item.premium ? 'opacity-40' : ''
-              }`}
-            >
-              <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
-                <span className="text-lg">🔬</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-800">
-                  {item.symptom}
-                </p>
-                <p className="text-xs text-gray-400">{item.date}</p>
-              </div>
-              {(!item.premium || isPremium) && (
+          {diagnosisHistory.length === 0 ? (
+            <div className="text-center py-6 text-gray-400 text-sm">
+              아직 진단 기록이 없어요
+            </div>
+          ) : (
+            diagnosisHistory.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-2"
+              >
+                <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <span className="text-lg">🔬</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gray-800">
+                    {item.symptom}
+                  </p>
+                  <p className="text-xs text-gray-400">{item.date}</p>
+                </div>
                 <Badge variant="red" className="text-xs">
                   결과보기
                 </Badge>
-              )}
-            </div>
-          ))}
+              </div>
+            ))
+          )}
 
           {!isPremium && (
             <div className="relative mt-2">

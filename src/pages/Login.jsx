@@ -41,12 +41,12 @@ export default function Login() {
       setErrors(next)
       return
     }
-    login()
+    login(email)
     navigate(hasRegisteredPet ? '/home' : '/pet-setup')
   }
 
   const handleKakao = () => {
-    login()
+    login('kakao@kakao.com')
     navigate(hasRegisteredPet ? '/home' : '/pet-setup')
   }
 
