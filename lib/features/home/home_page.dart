@@ -8,8 +8,10 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 import '../../data/models/models.dart';
 import '../../state/pet_provider.dart';
+import '../../state/shop_provider.dart';
+import 'widgets/quick_check_sheet.dart';
 
-/// 홈 화면. 활성 펫의 펫밀리 레벨과 오늘의 퀵체크를 보여준다.
+/// 홈 화면. 펫 카드 캐러셀 · 펫밀리 레벨 · 오늘의 케어 · AI 코멘트 · 건강 콘텐츠.
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
@@ -18,14 +20,17 @@ class HomePage extends ConsumerWidget {
     final petState = ref.watch(petProvider);
 
     return Scaffold(
-      body: petState.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => const _HomeError(),
-        data: (state) {
-          final pet = state.activePet;
-          if (pet == null) return const _EmptyPets();
-          return _HomeContent(state: state, pet: pet);
-        },
+      body: SafeArea(
+        bottom: false,
+        child: petState.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => const _HomeError(),
+          data: (state) {
+            final pet = state.activePet;
+            if (pet == null) return const _EmptyPets();
+            return _HomeContent(state: state, pet: pet);
+          },
+        ),
       ),
     );
   }
@@ -41,71 +46,510 @@ class _HomeContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final check = state.todayCheck;
     return ListView(
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
       children: [
-        _Header(state: state, pet: pet),
-        Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        const _TopBar(),
+        const SizedBox(height: AppSpacing.lg),
+        _PetCarousel(state: state),
+        const SizedBox(height: AppSpacing.xl),
+        _LevelCard(pet: pet),
+        const SizedBox(height: AppSpacing.xl),
+        _QuickCheckSection(check: check),
+        const SizedBox(height: AppSpacing.xl),
+        _AiCommentCard(pet: pet),
+        const SizedBox(height: AppSpacing.xxl),
+        const _HealthContentSection(),
+      ],
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget {
+  const _TopBar();
+
+  static const _weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final today = '${now.month}월 ${now.day}일 (${_weekdays[now.weekday - 1]})';
+    return Row(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(today,
+                style: const TextStyle(
+                    color: AppColors.textMuted, fontSize: 13)),
+            const SizedBox(height: 2),
+            Text('펫밀리', style: Theme.of(context).textTheme.headlineMedium),
+          ],
+        ),
+        const Spacer(),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            shape: BoxShape.circle,
+            boxShadow: AppShadows.soft,
+          ),
+          child: const Icon(Icons.notifications_none_rounded,
+              color: AppColors.textBody),
+        ),
+      ],
+    );
+  }
+}
+
+/// 펫 카드 캐러셀. 오른쪽으로 스와이프하면 마지막에 '반려동물 추가' 카드가 나온다.
+class _PetCarousel extends ConsumerStatefulWidget {
+  const _PetCarousel({required this.state});
+  final PetState state;
+
+  @override
+  ConsumerState<_PetCarousel> createState() => _PetCarouselState();
+}
+
+class _PetCarouselState extends ConsumerState<_PetCarousel> {
+  late final PageController _controller;
+  int _page = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final pets = widget.state.pets;
+    final initial = pets.indexWhere((p) => p.id == widget.state.activePetId);
+    _page = initial < 0 ? 0 : initial;
+    _controller = PageController(initialPage: _page);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pets = widget.state.pets;
+    final pageCount = pets.length + 1; // + 추가 카드
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 132,
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: pageCount,
+            onPageChanged: (i) {
+              setState(() => _page = i);
+              if (i < pets.length) {
+                ref.read(petProvider.notifier).selectPet(pets[i].id);
+              }
+            },
+            itemBuilder: (_, i) {
+              if (i == pets.length) return const _AddPetCard();
+              return _PetCard(pet: pets[i]);
+            },
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < pageCount; i++)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                width: i == _page ? 18 : 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: i == _page ? AppColors.primary : AppColors.border,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _PetCard extends StatelessWidget {
+  const _PetCard({required this.pet});
+  final Pet pet;
+
+  @override
+  Widget build(BuildContext context) {
+    final subtitle = [
+      if (pet.breed != null) pet.breed!,
+      if (pet.ageYears != null) '${pet.ageYears}살',
+      if (pet.gender != null) pet.gender!.label,
+    ].join(' · ');
+    final allergy =
+        pet.allergies.isEmpty ? '없음' : pet.allergies.join(', ');
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        gradient: AppColors.headerGradient,
+        borderRadius: BorderRadius.circular(AppRadius.xxl),
+      ),
+      child: Row(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('오늘의 케어',
-                      style: Theme.of(context).textTheme.titleLarge),
-                  Text(
-                    '+${check?.earnedExp ?? 0} exp',
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
+              Container(
+                width: 84,
+                height: 84,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: pet.imageUrl == null
+                    ? const Icon(Icons.pets, color: AppColors.primary, size: 36)
+                    : CachedNetworkImage(
+                        imageUrl: pet.imageUrl!,
+                        fit: BoxFit.cover,
+                        errorWidget: (_, _, _) => const Icon(Icons.pets,
+                            color: AppColors.primary, size: 36),
+                      ),
               ),
-              const SizedBox(height: AppSpacing.md),
-              GridView.count(
-                crossAxisCount: 3,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: AppSpacing.md,
-                crossAxisSpacing: AppSpacing.md,
-                childAspectRatio: 0.92,
-                children: [
-                  for (final type in QuickCheckType.values)
-                    _CheckTile(
-                      type: type,
-                      done: check?.isDone(type) ?? false,
-                      onTap: () =>
-                          ref.read(petProvider.notifier).toggleCheck(type),
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              Text('바로가기', style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ShortcutCard(
-                      icon: Icons.medical_services_rounded,
-                      title: 'AI 진단',
-                      subtitle: '증상 확인하기',
-                      onTap: () => context.go(Routes.diagnosis),
-                    ),
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: AppColors.success,
+                    shape: BoxShape.circle,
+                    border: Border.fromBorderSide(
+                        BorderSide(color: Colors.white, width: 2)),
                   ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: _ShortcutCard(
-                      icon: Icons.shopping_bag_rounded,
-                      title: '맞춤 쇼핑',
-                      subtitle: '추천 사료 보기',
-                      onTap: () => context.go(Routes.shop),
-                    ),
-                  ),
-                ],
+                  padding: const EdgeInsets.all(2),
+                  child: const Icon(Icons.check, color: Colors.white, size: 12),
+                ),
               ),
             ],
+          ),
+          const SizedBox(width: AppSpacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(pet.name,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800)),
+                const SizedBox(height: 4),
+                Text(subtitle,
+                    style: const TextStyle(
+                        color: Colors.white70, fontSize: 13)),
+                const SizedBox(height: 6),
+                Text('🌿 알러지: $allergy',
+                    style:
+                        const TextStyle(color: Colors.white, fontSize: 12)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AddPetCard extends StatelessWidget {
+  const _AddPetCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTap(
+      onTap: () => context.push(Routes.petSetup),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          gradient: AppColors.headerGradient,
+          borderRadius: BorderRadius.circular(AppRadius.xxl),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(color: Colors.white54, width: 1.5),
+              ),
+              child: const Icon(Icons.add, color: Colors.white, size: 36),
+            ),
+            const SizedBox(width: AppSpacing.lg),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('반려동물 추가',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800)),
+                SizedBox(height: 4),
+                Text('새 펫을 등록해보세요',
+                    style: TextStyle(color: Colors.white70, fontSize: 13)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LevelCard extends StatelessWidget {
+  const _LevelCard({required this.pet});
+  final Pet pet;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: const Icon(Icons.star_rounded,
+                    color: AppColors.warning, size: 24),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('펫밀리 레벨',
+                        style: TextStyle(
+                            fontSize: 12, color: AppColors.textMuted)),
+                    Text('Lv.${pet.level} ${pet.levelTitle}',
+                        style: const TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.w800)),
+                  ],
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${pet.levelExp}',
+                      style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800),
+                    ),
+                    const TextSpan(
+                      text: ' / 100',
+                      style: TextStyle(
+                          color: AppColors.textMuted, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          AppProgressBar(value: pet.levelProgress),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              const AppBadge(label: '첫 진단', color: AppBadgeColor.blue),
+              const SizedBox(width: AppSpacing.sm),
+              AppBadge(
+                  label: 'Lv.${pet.level + 1}까지 ${pet.expToNextLevel}점',
+                  color: AppBadgeColor.gray),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickCheckSection extends ConsumerWidget {
+  const _QuickCheckSection({this.check});
+  final DailyCheck? check;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final doneGroups = check?.doneGroupCount ?? 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('오늘의 Quick Check',
+                style: Theme.of(context).textTheme.titleLarge),
+            const Spacer(),
+            Text('$doneGroups/${QuickCheckGroup.values.length} 완료',
+                style: const TextStyle(
+                    color: AppColors.textMuted, fontSize: 13)),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Row(
+          children: [
+            for (final group in QuickCheckGroup.values) ...[
+              Expanded(
+                child: _QuickCheckCard(
+                  group: group,
+                  doneCount: check?.doneCountIn(group) ?? 0,
+                  onTap: () => showQuickCheckSheet(context, ref, group),
+                ),
+              ),
+              if (group != QuickCheckGroup.values.last)
+                const SizedBox(width: AppSpacing.md),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickCheckCard extends StatelessWidget {
+  const _QuickCheckCard({
+    required this.group,
+    required this.doneCount,
+    required this.onTap,
+  });
+
+  final QuickCheckGroup group;
+  final int doneCount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final done = doneCount > 0;
+    return ScaleTap(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.xl, horizontal: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(
+            color: done ? AppColors.primary : AppColors.border,
+            width: 1.4,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(group.emoji, style: const TextStyle(fontSize: 30)),
+            const SizedBox(height: AppSpacing.sm),
+            Text(group.label,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textStrong)),
+            const SizedBox(height: 2),
+            Text(
+              done ? '$doneCount개 완료' : '탭하여 체크',
+              style: TextStyle(
+                fontSize: 12,
+                color: done ? AppColors.primary : AppColors.textMuted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AiCommentCard extends StatelessWidget {
+  const _AiCommentCard({required this.pet});
+  final Pet pet;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        gradient: AppColors.headerGradient,
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+                color: Colors.white24, shape: BoxShape.circle),
+            child: const Icon(Icons.smart_toy_outlined, color: Colors.white),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('AI 건강 코멘트',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(
+                  '${pet.name}의 피부 상태가 걱정돼요. 오늘 피부 체크를 해보는 건 어떨까요? 🔍',
+                  style: const TextStyle(
+                      color: Colors.white, fontSize: 13, height: 1.4),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HealthContentSection extends ConsumerWidget {
+  const _HealthContentSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final contents = ref.watch(healthContentsProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('건강 콘텐츠', style: Theme.of(context).textTheme.titleLarge),
+            const Spacer(),
+            const Text('전체보기',
+                style: TextStyle(color: AppColors.primary, fontSize: 13)),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        SizedBox(
+          height: 168,
+          child: contents.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (_, _) => const SizedBox.shrink(),
+            data: (items) => ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
+              itemBuilder: (_, i) => _HealthContentCard(content: items[i]),
+            ),
           ),
         ),
       ],
@@ -113,230 +557,55 @@ class _HomeContent extends ConsumerWidget {
   }
 }
 
-class _Header extends ConsumerWidget {
-  const _Header({required this.state, required this.pet});
-
-  final PetState state;
-  final Pet pet;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return GradientHeader(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('안녕하세요 👋',
-              style: TextStyle(color: Colors.white70, fontSize: 14)),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              _Avatar(url: pet.imageUrl),
-              const SizedBox(width: AppSpacing.lg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          pet.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.white24,
-                            borderRadius: BorderRadius.circular(AppRadius.pill),
-                          ),
-                          child: Text(
-                            'Lv.${pet.level}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      [pet.species.label, if (pet.breed != null) pet.breed!]
-                          .join(' · '),
-                      style: const TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          AppProgressBar(
-            value: pet.levelProgress,
-            color: Colors.white,
-            backgroundColor: Colors.white24,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            '다음 레벨까지 ${pet.expToNextLevel} exp',
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-          if (state.pets.length > 1) ...[
-            const SizedBox(height: AppSpacing.lg),
-            SizedBox(
-              height: 34,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: state.pets.length,
-                separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
-                itemBuilder: (_, i) {
-                  final p = state.pets[i];
-                  final selected = p.id == pet.id;
-                  return ScaleTap(
-                    onTap: () =>
-                        ref.read(petProvider.notifier).selectPet(p.id),
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: selected ? Colors.white : Colors.white24,
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                      ),
-                      child: Text(
-                        p.name,
-                        style: TextStyle(
-                          color: selected ? AppColors.primary : Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  const _Avatar({this.url});
-  final String? url;
+class _HealthContentCard extends StatelessWidget {
+  const _HealthContentCard({required this.content});
+  final HealthContent content;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 60,
-      height: 60,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
+      width: 220,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        boxShadow: AppShadows.soft,
       ),
       clipBehavior: Clip.antiAlias,
-      child: url == null || url!.isEmpty
-          ? const Icon(Icons.pets, color: AppColors.primary)
-          : CachedNetworkImage(
-              imageUrl: url!,
-              fit: BoxFit.cover,
-              errorWidget: (_, _, _) =>
-                  const Icon(Icons.pets, color: AppColors.primary),
-            ),
-    );
-  }
-}
-
-class _CheckTile extends StatelessWidget {
-  const _CheckTile({
-    required this.type,
-    required this.done,
-    required this.onTap,
-  });
-
-  final QuickCheckType type;
-  final bool done;
-  final VoidCallback onTap;
-
-  IconData get _icon => switch (type) {
-        QuickCheckType.walk => Icons.directions_walk_rounded,
-        QuickCheckType.meal => Icons.restaurant_rounded,
-        QuickCheckType.water => Icons.water_drop_rounded,
-        QuickCheckType.potty => Icons.wc_rounded,
-        QuickCheckType.play => Icons.sports_baseball_rounded,
-        QuickCheckType.grooming => Icons.content_cut_rounded,
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTap(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: done ? AppColors.primary : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          boxShadow: AppShadows.soft,
-          border: Border.all(
-            color: done ? AppColors.primary : AppColors.border,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(_icon,
-                size: 28, color: done ? Colors.white : AppColors.primary),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              type.label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: done ? Colors.white : AppColors.textBody,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ShortcutCard extends StatelessWidget {
-  const _ShortcutCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.primary, size: 28),
-          const SizedBox(height: AppSpacing.md),
-          Text(title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, color: AppColors.textStrong)),
-          const SizedBox(height: 2),
-          Text(subtitle,
-              style: const TextStyle(
-                  fontSize: 12, color: AppColors.textMuted)),
+          if (content.imageUrl != null)
+            SizedBox(
+              height: 74,
+              width: double.infinity,
+              child: CachedNetworkImage(
+                imageUrl: content.imageUrl!,
+                fit: BoxFit.cover,
+                errorWidget: (_, _, _) =>
+                    Container(color: AppColors.background),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppBadge(label: content.category, color: AppBadgeColor.blue),
+                const SizedBox(height: 6),
+                Text(content.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 13)),
+                const SizedBox(height: 2),
+                Text(content.summary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        color: AppColors.textMuted, fontSize: 12)),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -357,8 +626,7 @@ class _EmptyPets extends StatelessWidget {
             const Icon(Icons.pets, size: 56, color: AppColors.primaryLight),
             const SizedBox(height: AppSpacing.lg),
             const Text('등록된 반려동물이 없어요',
-                style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w700)),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: AppSpacing.sm),
             const Text('첫 반려동물을 등록하고 케어를 시작해 보세요.',
                 style: TextStyle(color: AppColors.textMuted)),
