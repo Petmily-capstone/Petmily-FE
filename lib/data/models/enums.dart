@@ -20,8 +20,21 @@ enum PetGender {
   female;
 
   String get label => switch (this) {
-        PetGender.male => '남아',
-        PetGender.female => '여아',
+        PetGender.male => '수컷',
+        PetGender.female => '암컷',
+      };
+}
+
+/// 강아지 크기 분류.
+enum DogSize {
+  small,
+  medium,
+  large;
+
+  String get label => switch (this) {
+        DogSize.small => '소형견',
+        DogSize.medium => '중형견',
+        DogSize.large => '대형견',
       };
 }
 

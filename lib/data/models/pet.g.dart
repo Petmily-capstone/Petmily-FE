@@ -17,6 +17,8 @@ _Pet _$PetFromJson(Map<String, dynamic> json) => _Pet(
       : DateTime.parse(json['birthDate'] as String),
   weightKg: (json['weightKg'] as num?)?.toDouble(),
   imageUrl: json['imageUrl'] as String?,
+  size: $enumDecodeNullable(_$DogSizeEnumMap, json['size']),
+  neutered: json['neutered'] as bool?,
   exp: (json['exp'] as num?)?.toInt() ?? 0,
 );
 
@@ -29,9 +31,17 @@ Map<String, dynamic> _$PetToJson(_Pet instance) => <String, dynamic>{
   'birthDate': instance.birthDate?.toIso8601String(),
   'weightKg': instance.weightKg,
   'imageUrl': instance.imageUrl,
+  'size': _$DogSizeEnumMap[instance.size],
+  'neutered': instance.neutered,
   'exp': instance.exp,
 };
 
 const _$PetSpeciesEnumMap = {PetSpecies.dog: 'dog', PetSpecies.cat: 'cat'};
 
 const _$PetGenderEnumMap = {PetGender.male: 'male', PetGender.female: 'female'};
+
+const _$DogSizeEnumMap = {
+  DogSize.small: 'small',
+  DogSize.medium: 'medium',
+  DogSize.large: 'large',
+};

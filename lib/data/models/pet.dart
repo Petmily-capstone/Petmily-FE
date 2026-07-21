@@ -24,6 +24,10 @@ abstract class Pet with _$Pet {
     DateTime? birthDate,
     double? weightKg,
     String? imageUrl,
+    // 강아지 크기 분류(소/중/대형견). 고양이는 사용하지 않음.
+    DogSize? size,
+    // 중성화 여부.
+    bool? neutered,
     @Default(0) int exp,
   }) = _Pet;
 
