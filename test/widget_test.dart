@@ -1,30 +1,25 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:petmily_fe/main.dart';
+import 'package:petmily_fe/app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('앱이 스플래시로 부팅되어 온보딩으로 진행된다',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const ProviderScope(child: PetmilyApp()));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // 첫 프레임: 스플래시.
+    expect(find.byType(MaterialApp), findsOneWidget);
+    expect(find.text('펫밀리'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // 세션 복원(400ms)과 스플래시 노출(1300ms) 타이머를 소진.
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // 미인증 상태이므로 온보딩으로 이동.
+    expect(find.text('시작하기'), findsNothing); // 첫 슬라이드에서는 '다음'
+    expect(find.text('다음'), findsOneWidget);
   });
 }
