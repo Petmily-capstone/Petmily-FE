@@ -10,17 +10,19 @@ class MockShopRepository implements ShopRepository {
   @override
   Future<List<Product>> fetchProducts({
     PetSpecies? species,
+    ProductCategory? category,
     String? query,
   }) async {
     await Future.delayed(_latency);
     final q = query?.trim().toLowerCase();
     return _products.where((p) {
       final speciesOk = species == null || p.species == species;
+      final categoryOk = category == null || p.category == category;
       final queryOk = q == null ||
           q.isEmpty ||
           p.name.toLowerCase().contains(q) ||
           p.brand.toLowerCase().contains(q);
-      return speciesOk && queryOk;
+      return speciesOk && categoryOk && queryOk;
     }).toList();
   }
 
@@ -36,11 +38,11 @@ class MockShopRepository implements ShopRepository {
   @override
   Future<List<Product>> fetchRecommended(String petId) async {
     await Future.delayed(_latency);
-    // 목: 맞춤 점수가 있는 상품을 점수순으로.
+    // 목: 맞춤 점수가 높은 상품 상위 5개(AI 추천 TOP 5).
     final items =
         _products.where((p) => p.matchScore != null).toList()
           ..sort((a, b) => b.matchScore!.compareTo(a.matchScore!));
-    return items;
+    return items.take(5).toList();
   }
 
   @override

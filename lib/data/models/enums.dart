@@ -41,32 +41,93 @@ enum DogSize {
 /// 로그인 수단.
 enum AuthProvider { email, kakao, google }
 
-/// 데일리 퀵체크 항목. 완료 시 [exp]만큼 경험치를 준다.
+/// 데일리 퀵체크 항목. 완료 시 항목당 고정 경험치를 준다.
 enum QuickCheckType {
   walk,
+  play,
   meal,
   water,
-  potty,
-  play,
-  grooming;
+  nutrition;
 
   String get label => switch (this) {
         QuickCheckType.walk => '산책',
+        QuickCheckType.play => '놀이',
         QuickCheckType.meal => '식사',
         QuickCheckType.water => '급수',
-        QuickCheckType.potty => '배변',
-        QuickCheckType.play => '놀이',
-        QuickCheckType.grooming => '그루밍',
+        QuickCheckType.nutrition => '영양',
       };
 
-  /// 완료 시 획득 경험치.
-  int get exp => switch (this) {
-        QuickCheckType.walk => 20,
-        QuickCheckType.meal => 15,
-        QuickCheckType.water => 10,
-        QuickCheckType.potty => 10,
-        QuickCheckType.play => 15,
-        QuickCheckType.grooming => 10,
+  String get emoji => switch (this) {
+        QuickCheckType.walk => '🐕',
+        QuickCheckType.play => '🎾',
+        QuickCheckType.meal => '🍖',
+        QuickCheckType.water => '💧',
+        QuickCheckType.nutrition => '💊',
+      };
+
+  /// 체크한 항목마다 +2점.
+  int get exp => 2;
+}
+
+/// 오늘의 케어 그룹. 홈에서 2개 카드로 묶여 표시된다.
+enum QuickCheckGroup {
+  activity,
+  feeding;
+
+  String get label => switch (this) {
+        QuickCheckGroup.activity => '산책/놀이',
+        QuickCheckGroup.feeding => '식사/급수/영양',
+      };
+
+  String get emoji => switch (this) {
+        QuickCheckGroup.activity => '🐕',
+        QuickCheckGroup.feeding => '🍖',
+      };
+
+  String get question => '오늘 $label 했나요?';
+
+  List<QuickCheckType> get items => switch (this) {
+        QuickCheckGroup.activity => const [
+            QuickCheckType.walk,
+            QuickCheckType.play,
+          ],
+        QuickCheckGroup.feeding => const [
+            QuickCheckType.meal,
+            QuickCheckType.water,
+            QuickCheckType.nutrition,
+          ],
+      };
+}
+
+/// 펫푸드 카테고리.
+enum ProductCategory {
+  food,
+  supplement,
+  snack;
+
+  String get label => switch (this) {
+        ProductCategory.food => '사료',
+        ProductCategory.supplement => '영양제',
+        ProductCategory.snack => '간식',
+      };
+
+  String get emoji => switch (this) {
+        ProductCategory.food => '🥩',
+        ProductCategory.supplement => '💊',
+        ProductCategory.snack => '🌰',
+      };
+}
+
+/// 성분 분석 분류.
+enum IngredientKind {
+  good,
+  caution,
+  functional;
+
+  String get label => switch (this) {
+        IngredientKind.good => '좋은 성분',
+        IngredientKind.caution => '주의 성분',
+        IngredientKind.functional => '기능성 성분',
       };
 }
 

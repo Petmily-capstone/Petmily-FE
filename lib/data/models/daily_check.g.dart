@@ -27,9 +27,8 @@ Map<String, dynamic> _$DailyCheckToJson(_DailyCheck instance) =>
 
 const _$QuickCheckTypeEnumMap = {
   QuickCheckType.walk: 'walk',
+  QuickCheckType.play: 'play',
   QuickCheckType.meal: 'meal',
   QuickCheckType.water: 'water',
-  QuickCheckType.potty: 'potty',
-  QuickCheckType.play: 'play',
-  QuickCheckType.grooming: 'grooming',
+  QuickCheckType.nutrition: 'nutrition',
 };

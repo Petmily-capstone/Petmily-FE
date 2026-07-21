@@ -2,8 +2,12 @@ import '../models/models.dart';
 
 /// 쇼핑 도메인 Repository 인터페이스.
 abstract interface class ShopRepository {
-  /// 상품 목록. [species]·[query]로 필터링한다.
-  Future<List<Product>> fetchProducts({PetSpecies? species, String? query});
+  /// 상품 목록. [species]·[category]·[query]로 필터링한다.
+  Future<List<Product>> fetchProducts({
+    PetSpecies? species,
+    ProductCategory? category,
+    String? query,
+  });
 
   Future<Product> fetchProduct(String id);
 

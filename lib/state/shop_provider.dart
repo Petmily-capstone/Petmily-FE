@@ -1,45 +1,46 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/models/models.dart';
+import 'pet_provider.dart';
 import 'repository_providers.dart';
 
-/// 상품 목록 필터.
-class ShopFilter {
-  const ShopFilter({this.species, this.query = ''});
-  final PetSpecies? species;
-  final String query;
-
-  ShopFilter copyWith({PetSpecies? species, bool clearSpecies = false, String? query}) {
-    return ShopFilter(
-      species: clearSpecies ? null : (species ?? this.species),
-      query: query ?? this.query,
-    );
-  }
-}
-
-/// 현재 상품 목록 필터 상태.
-class ShopFilterNotifier extends Notifier<ShopFilter> {
+/// 선택된 카테고리(null = 전체). 종은 활성 펫으로 자동 결정된다.
+class ShopCategoryNotifier extends Notifier<ProductCategory?> {
   @override
-  ShopFilter build() => const ShopFilter();
+  ProductCategory? build() => null;
 
-  void setSpecies(PetSpecies? species) {
-    state = species == null
-        ? state.copyWith(clearSpecies: true)
-        : state.copyWith(species: species);
-  }
-
-  void setQuery(String query) => state = state.copyWith(query: query);
+  void select(ProductCategory? category) => state = category;
 }
 
-final shopFilterProvider =
-    NotifierProvider<ShopFilterNotifier, ShopFilter>(ShopFilterNotifier.new);
+final shopCategoryProvider =
+    NotifierProvider<ShopCategoryNotifier, ProductCategory?>(
+        ShopCategoryNotifier.new);
 
-/// 필터가 반영된 상품 목록. 필터 변경 시 자동 재조회.
+/// 검색어.
+class ShopQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void set(String value) => state = value;
+}
+
+final shopQueryProvider =
+    NotifierProvider<ShopQueryNotifier, String>(ShopQueryNotifier.new);
+
+/// 활성 펫의 종.
+final _activeSpeciesProvider = Provider<PetSpecies?>((ref) {
+  return ref.watch(activePetProvider)?.species;
+});
+
+/// 필터(종+카테고리+검색어)가 반영된 상품 목록.
 final productListProvider = FutureProvider<List<Product>>((ref) async {
-  final filter = ref.watch(shopFilterProvider);
+  final species = ref.watch(_activeSpeciesProvider);
+  final category = ref.watch(shopCategoryProvider);
+  final query = ref.watch(shopQueryProvider);
   return ref.watch(shopRepositoryProvider).fetchProducts(
-        species: filter.species,
-        query: filter.query,
+        species: species,
+        category: category,
+        query: query,
       );
 });
 
@@ -49,11 +50,27 @@ final productDetailProvider =
   return ref.watch(shopRepositoryProvider).fetchProduct(id);
 });
 
-/// 펫 성분 궁합 기반 맞춤 추천.
-final recommendedProductsProvider =
-    FutureProvider.family<List<Product>, String>((ref, petId) async {
+/// AI 추천(맞춤 점수 상위) 상품.
+final recommendedProductsProvider = FutureProvider<List<Product>>((ref) async {
+  final pet = ref.watch(activePetProvider);
+  final petId = pet?.id ?? '';
   return ref.watch(shopRepositoryProvider).fetchRecommended(petId);
 });
+
+/// 찜(위시리스트) 상품 id 집합.
+class WishlistNotifier extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => {};
+
+  void toggle(String productId) {
+    final next = {...state};
+    if (!next.remove(productId)) next.add(productId);
+    state = next;
+  }
+}
+
+final wishlistProvider =
+    NotifierProvider<WishlistNotifier, Set<String>>(WishlistNotifier.new);
 
 /// 장바구니.
 class CartNotifier extends Notifier<List<CartItem>> {
@@ -107,4 +124,9 @@ final cartTotalProvider = Provider<int>((ref) {
 final cartCountProvider = Provider<int>((ref) {
   final items = ref.watch(cartProvider);
   return items.fold(0, (sum, item) => sum + item.quantity);
+});
+
+/// 홈 '건강 콘텐츠' 목록.
+final healthContentsProvider = FutureProvider<List<HealthContent>>((ref) async {
+  return ref.watch(contentRepositoryProvider).fetchHealthContents();
 });

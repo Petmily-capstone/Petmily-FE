@@ -19,6 +19,9 @@ _Pet _$PetFromJson(Map<String, dynamic> json) => _Pet(
   imageUrl: json['imageUrl'] as String?,
   size: $enumDecodeNullable(_$DogSizeEnumMap, json['size']),
   neutered: json['neutered'] as bool?,
+  allergies:
+      (json['allergies'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const <String>[],
   exp: (json['exp'] as num?)?.toInt() ?? 0,
 );
 
@@ -33,6 +36,7 @@ Map<String, dynamic> _$PetToJson(_Pet instance) => <String, dynamic>{
   'imageUrl': instance.imageUrl,
   'size': _$DogSizeEnumMap[instance.size],
   'neutered': instance.neutered,
+  'allergies': instance.allergies,
   'exp': instance.exp,
 };
 

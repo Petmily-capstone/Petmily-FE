@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/repositories/auth_repository.dart';
+import '../data/repositories/content_repository.dart';
 import '../data/repositories/diagnosis_repository.dart';
 import '../data/repositories/pet_repository.dart';
 import '../data/repositories/shop_repository.dart';
 import '../data/repositories/mock/mock_auth_repository.dart';
+import '../data/repositories/mock/mock_content_repository.dart';
 import '../data/repositories/mock/mock_diagnosis_repository.dart';
 import '../data/repositories/mock/mock_pet_repository.dart';
 import '../data/repositories/mock/mock_shop_repository.dart';
@@ -27,4 +29,8 @@ final diagnosisRepositoryProvider = Provider<DiagnosisRepository>(
 
 final shopRepositoryProvider = Provider<ShopRepository>(
   (ref) => MockShopRepository(),
+);
+
+final contentRepositoryProvider = Provider<ContentRepository>(
+  (ref) => MockContentRepository(),
 );
