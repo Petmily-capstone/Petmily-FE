@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'core/theme/theme.dart';
+
 /// 펫밀리 앱 루트.
 ///
-/// 지금은 진입점 골격만 둔다. 디자인 토큰(Theme)은 Phase 1,
-/// go_router 기반 라우팅(`MaterialApp.router`)은 Phase 4에서 붙인다.
+/// 디자인 토큰(Theme)을 적용한다. go_router 기반 라우팅(`MaterialApp.router`)은
+/// Phase 4에서 붙인다.
 class PetmilyApp extends StatelessWidget {
   const PetmilyApp({super.key});
 
@@ -12,6 +14,7 @@ class PetmilyApp extends StatelessWidget {
     return MaterialApp(
       title: '펫밀리',
       debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
       home: const _BootstrapScreen(),
     );
   }
