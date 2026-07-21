@@ -5,11 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/theme.dart';
 import '../../state/auth_provider.dart';
+import '../../state/pet_provider.dart';
 
 /// 스플래시.
 ///
 /// 로고를 잠깐 보여준 뒤 인증 상태에 따라 초기 화면으로 분기한다.
-/// (인증됨 → 홈, 아니면 → 온보딩)
+/// 인증됨: 펫이 있으면 홈, 없으면 펫 등록. 미인증: 온보딩.
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
 
@@ -31,13 +32,23 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     });
   }
 
-  void _maybeGo() {
-    if (!_minDelayPassed) return;
+  bool _navigating = false;
+
+  Future<void> _maybeGo() async {
+    if (!_minDelayPassed || _navigating) return;
     final status = ref.read(authProvider).status;
     if (status == AuthStatus.unknown) return; // 세션 복원 대기
-    context.go(
-      status == AuthStatus.authenticated ? Routes.home : Routes.onboarding,
-    );
+    _navigating = true;
+
+    if (status != AuthStatus.authenticated) {
+      if (mounted) context.go(Routes.onboarding);
+      return;
+    }
+    // 인증됨: 펫 유무로 홈/펫등록 분기(최초 1회).
+    final petState = await ref.read(petProvider.future);
+    if (mounted) {
+      context.go(petState.pets.isEmpty ? Routes.petSetup : Routes.home);
+    }
   }
 
   @override

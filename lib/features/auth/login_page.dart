@@ -6,6 +6,7 @@ import '../../core/router/routes.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 import '../../state/auth_provider.dart';
+import '../../state/pet_provider.dart';
 import 'widgets/auth_text_field.dart';
 
 /// 로그인 화면. 이메일/비밀번호 + 소셜(카카오/구글) 로그인.
@@ -31,12 +32,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final ok = await ref
         .read(authProvider.notifier)
         .signInWithEmail(_email.text.trim(), _password.text);
-    if (ok && mounted) context.go(Routes.home);
+    if (ok) await _routeAfterAuth();
   }
 
   Future<void> _social(Future<bool> Function() action) async {
     final ok = await action();
-    if (ok && mounted) context.go(Routes.home);
+    if (ok) await _routeAfterAuth();
+  }
+
+  /// 로그인 후 최초 1회 분기: 등록된 펫이 없으면 펫 등록, 있으면 홈.
+  Future<void> _routeAfterAuth() async {
+    final petState = await ref.read(petProvider.future);
+    if (!mounted) return;
+    context.go(petState.pets.isEmpty ? Routes.petSetup : Routes.home);
   }
 
   @override
