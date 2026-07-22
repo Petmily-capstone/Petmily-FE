@@ -71,7 +71,7 @@ class PrimaryButton extends StatelessWidget {
       child: ScaleTap(
         onTap: _enabled ? onPressed : null,
         child: Container(
-          height: 52,
+          height: 58,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
           decoration: BoxDecoration(
             color: style.bg,

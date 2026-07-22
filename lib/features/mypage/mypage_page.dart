@@ -30,40 +30,32 @@ class MyPage extends ConsumerWidget {
         children: [
           GradientHeader(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: 72,
+                  height: 72,
                   decoration: const BoxDecoration(
                       color: Colors.white, shape: BoxShape.circle),
-                  child: const Icon(Icons.person, color: AppColors.primary),
+                  child: const Icon(Icons.person,
+                      color: AppColors.primary, size: 34),
                 ),
                 const SizedBox(width: AppSpacing.lg),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user?.name ?? '게스트',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        user?.email ?? '',
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 13),
-                      ),
-                    ],
+                  child: HeaderTitle(
+                    title: user?.name ?? '게스트',
+                    // 이메일이 없으면 빈 줄이 생기지 않도록 null 전달.
+                    subtitle: (user?.email.isNotEmpty ?? false)
+                        ? user!.email
+                        : null,
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.page,
+                AppSpacing.section, AppSpacing.page, AppSpacing.section),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -79,24 +71,24 @@ class MyPage extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.md),
                 if (pets.isEmpty)
                   const Text('등록된 반려동물이 없어요.',
                       style: TextStyle(color: AppColors.textMuted))
                 else
                   for (final pet in pets) ...[
                     _PetRow(pet: pet),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.lg),
                   ],
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.section),
                 Text('설정', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.md),
                 const _MenuTile(icon: Icons.notifications_outlined, label: '알림 설정'),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.lg),
                 const _MenuTile(icon: Icons.headset_mic_outlined, label: '고객센터'),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.lg),
                 const _MenuTile(icon: Icons.info_outline, label: '앱 정보'),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.section),
                 PrimaryButton(
                   label: '로그아웃',
                   variant: AppButtonVariant.ghost,
@@ -118,13 +110,13 @@ class _PetRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Row(
         children: [
           ClipOval(
             child: SizedBox(
-              width: 48,
-              height: 48,
+              width: 64,
+              height: 64,
               child: pet.imageUrl == null
                   ? Container(
                       color: AppColors.background,
@@ -142,19 +134,20 @@ class _PetRow extends StatelessWidget {
                     ),
             ),
           ),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: AppSpacing.lg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(pet.name,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 2),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 17)),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   [pet.species.label, if (pet.breed != null) pet.breed!]
                       .join(' · '),
                   style: const TextStyle(
-                      fontSize: 12, color: AppColors.textMuted),
+                      fontSize: 14, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -175,16 +168,18 @@ class _MenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
       // TODO: 각 설정 화면 연결.
       onTap: () {},
       child: Row(
         children: [
-          Icon(icon, color: AppColors.textBody, size: 20),
-          const SizedBox(width: AppSpacing.md),
+          Icon(icon, color: AppColors.textBody, size: 24),
+          const SizedBox(width: AppSpacing.lg),
           Text(label,
               style: const TextStyle(
-                  fontWeight: FontWeight.w600, color: AppColors.textStrong)),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: AppColors.textStrong)),
           const Spacer(),
           const Icon(Icons.chevron_right, color: AppColors.textMuted),
         ],
