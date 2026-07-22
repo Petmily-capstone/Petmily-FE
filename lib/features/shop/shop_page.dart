@@ -35,19 +35,10 @@ class ShopPage extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('성분 분석 쇼핑',
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 13)),
-                          const SizedBox(height: 2),
-                          Text('$speciesEmoji ${pet?.name ?? '우리 아이'}의 푸드 가이드',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800)),
-                        ],
+                      child: HeaderTitle(
+                        title:
+                            '$speciesEmoji ${pet?.name ?? '우리 아이'}의 푸드 가이드',
+                        subtitle: '성분 분석 쇼핑',
                       ),
                     ),
                     _CartButton(

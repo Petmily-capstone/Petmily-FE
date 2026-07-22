@@ -72,47 +72,42 @@ class _DiagnosisPageState extends ConsumerState<DiagnosisPage> {
         padding: EdgeInsets.zero,
         children: [
           const GradientHeader(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('AI 증상 진단',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800)),
-                SizedBox(height: AppSpacing.xs),
-                Text('증상을 입력하면 AI가 상태를 살펴봐요.',
-                    style: TextStyle(color: Colors.white70, fontSize: 13)),
-              ],
+            child: HeaderTitle(
+              title: 'AI 증상 진단',
+              subtitle: '증상을 입력하면 AI가 상태를 살펴봐요.',
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.page,
+                AppSpacing.section, AppSpacing.page, AppSpacing.section),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppCard(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${pet.name}의 증상',
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: AppSpacing.md),
+                          style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: AppSpacing.lg),
                       TextField(
                         controller: _symptom,
-                        maxLines: 4,
+                        maxLines: 6,
                         decoration: InputDecoration(
                           hintText: '예: 어제부터 기침을 하고 밥을 잘 안 먹어요.',
                           filled: true,
                           fillColor: AppColors.background,
+                          contentPadding:
+                              const EdgeInsets.all(AppSpacing.lg),
                           border: OutlineInputBorder(
                             borderRadius:
-                                BorderRadius.circular(AppRadius.md),
+                                BorderRadius.circular(AppRadius.lg),
                             borderSide: BorderSide.none,
                           ),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.md),
+                      const SizedBox(height: AppSpacing.lg),
                       // TODO: 진단 사진 업로드 연동.
                       ScaleTap(
                         onTap: () => ScaffoldMessenger.of(context).showSnackBar(
@@ -121,9 +116,9 @@ class _DiagnosisPageState extends ConsumerState<DiagnosisPage> {
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md),
+                              vertical: AppSpacing.xl),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppRadius.md),
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
                             border: Border.all(
                               color: AppColors.border,
                               style: BorderStyle.solid,
@@ -133,16 +128,17 @@ class _DiagnosisPageState extends ConsumerState<DiagnosisPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.add_a_photo_outlined,
-                                  size: 18, color: AppColors.textMuted),
+                                  size: 22, color: AppColors.textMuted),
                               SizedBox(width: AppSpacing.sm),
                               Text('사진 첨부 (선택)',
-                                  style:
-                                      TextStyle(color: AppColors.textMuted)),
+                                  style: TextStyle(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15)),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.xl),
                       PrimaryButton(
                         label: 'AI 진단 받기',
                         loading: diag.isSubmitting,
@@ -152,17 +148,17 @@ class _DiagnosisPageState extends ConsumerState<DiagnosisPage> {
                   ),
                 ),
                 if (diag.latest != null) ...[
-                  const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: AppSpacing.section),
                   _ResultCard(diagnosis: diag.latest!),
                 ],
                 if (_pastHistory(diag).isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xxl),
+                  const SizedBox(height: AppSpacing.section),
                   Text('진단 이력',
                       style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: AppSpacing.lg),
                   for (final d in _pastHistory(diag)) ...[
                     _HistoryTile(diagnosis: d),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.lg),
                   ],
                 ],
               ],
@@ -187,12 +183,13 @@ class _ResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
+              const Icon(Icons.auto_awesome, color: AppColors.primary, size: 22),
               const SizedBox(width: AppSpacing.sm),
               const Text('진단 결과',
                   style: TextStyle(fontWeight: FontWeight.w700)),
@@ -243,7 +240,7 @@ class _HistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       child: Row(
         children: [
           Expanded(
@@ -253,11 +250,12 @@ class _HistoryTile extends StatelessWidget {
                 Text(diagnosis.resultTitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 16)),
+                const SizedBox(height: AppSpacing.xs),
                 Text(Formatters.dateDot(diagnosis.createdAt),
                     style: const TextStyle(
-                        fontSize: 12, color: AppColors.textMuted)),
+                        fontSize: 13, color: AppColors.textMuted)),
               ],
             ),
           ),
