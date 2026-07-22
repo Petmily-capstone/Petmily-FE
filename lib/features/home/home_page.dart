@@ -47,18 +47,18 @@ class _HomeContent extends ConsumerWidget {
     final check = state.todayCheck;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+          AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, 40),
       children: [
         const _TopBar(),
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.xl),
         _PetCarousel(state: state),
-        const SizedBox(height: AppSpacing.xl),
-        _LevelCard(pet: pet),
-        const SizedBox(height: AppSpacing.xl),
-        _QuickCheckSection(check: check),
-        const SizedBox(height: AppSpacing.xl),
-        _AiCommentCard(pet: pet),
         const SizedBox(height: AppSpacing.xxl),
+        _LevelCard(pet: pet),
+        const SizedBox(height: AppSpacing.xxl),
+        _QuickCheckSection(check: check),
+        const SizedBox(height: AppSpacing.xxl),
+        _AiCommentCard(pet: pet),
+        const SizedBox(height: AppSpacing.xxxl),
         const _HealthContentSection(),
       ],
     );
@@ -139,7 +139,7 @@ class _PetCarouselState extends ConsumerState<_PetCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 132,
+          height: 156,
           child: PageView.builder(
             controller: _controller,
             itemCount: pageCount,
@@ -192,7 +192,7 @@ class _PetCard extends StatelessWidget {
         pet.allergies.isEmpty ? '없음' : pet.allergies.join(', ');
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
         borderRadius: BorderRadius.circular(AppRadius.xxl),
@@ -203,8 +203,8 @@ class _PetCard extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
-                width: 84,
-                height: 84,
+                width: 96,
+                height: 96,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -271,7 +271,7 @@ class _AddPetCard extends StatelessWidget {
     return ScaleTap(
       onTap: () => context.push(Routes.petSetup),
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         decoration: BoxDecoration(
           gradient: AppColors.headerGradient,
           borderRadius: BorderRadius.circular(AppRadius.xxl),
@@ -279,8 +279,8 @@ class _AddPetCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 84,
-              height: 84,
+              width: 96,
+              height: 96,
               decoration: BoxDecoration(
                 color: Colors.white24,
                 borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -317,14 +317,15 @@ class _LevelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(AppRadius.md),
@@ -366,9 +367,9 @@ class _LevelCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          AppProgressBar(value: pet.levelProgress),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
+          AppProgressBar(value: pet.levelProgress, height: 12),
+          const SizedBox(height: AppSpacing.lg),
           Row(
             children: [
               const AppBadge(label: '첫 진단', color: AppBadgeColor.blue),
@@ -443,10 +444,10 @@ class _QuickCheckCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(
-            vertical: AppSpacing.xl, horizontal: AppSpacing.md),
+            vertical: AppSpacing.xxl, horizontal: AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           border: Border.all(
             color: done ? AppColors.primary : AppColors.border,
             width: 1.4,
@@ -454,8 +455,8 @@ class _QuickCheckCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(group.emoji, style: const TextStyle(fontSize: 30)),
-            const SizedBox(height: AppSpacing.sm),
+            Text(group.emoji, style: const TextStyle(fontSize: 36)),
+            const SizedBox(height: AppSpacing.md),
             Text(group.label,
                 style: const TextStyle(
                     fontWeight: FontWeight.w700,
@@ -482,7 +483,7 @@ class _AiCommentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
         borderRadius: BorderRadius.circular(AppRadius.xl),
@@ -491,8 +492,8 @@ class _AiCommentCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: const BoxDecoration(
                 color: Colors.white24, shape: BoxShape.circle),
             child: const Icon(Icons.smart_toy_outlined, color: Colors.white),
@@ -538,9 +539,9 @@ class _HealthContentSection extends ConsumerWidget {
                 style: TextStyle(color: AppColors.primary, fontSize: 13)),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
         SizedBox(
-          height: 168,
+          height: 208,
           child: contents.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, _) => const SizedBox.shrink(),
@@ -564,7 +565,7 @@ class _HealthContentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 220,
+      width: 244,
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -576,7 +577,7 @@ class _HealthContentCard extends StatelessWidget {
         children: [
           if (content.imageUrl != null)
             SizedBox(
-              height: 74,
+              height: 104,
               width: double.infinity,
               child: CachedNetworkImage(
                 imageUrl: content.imageUrl!,
@@ -585,25 +586,29 @@ class _HealthContentCard extends StatelessWidget {
                     Container(color: AppColors.background),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppBadge(label: content.category, color: AppBadgeColor.blue),
-                const SizedBox(height: 6),
-                Text(content.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 13)),
-                const SizedBox(height: 2),
-                Text(content.summary,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 12)),
-              ],
+          // 남은 높이를 텍스트 영역이 차지하도록 해 1px 오버플로를 방지.
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppBadge(label: content.category, color: AppBadgeColor.blue),
+                  const SizedBox(height: 6),
+                  Text(content.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 14)),
+                  const SizedBox(height: 3),
+                  Text(content.summary,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: AppColors.textMuted, fontSize: 12)),
+                ],
+              ),
             ),
           ),
         ],
