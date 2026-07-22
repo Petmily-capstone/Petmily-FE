@@ -81,22 +81,26 @@ class _TopBar extends StatelessWidget {
           children: [
             Text(today,
                 style: const TextStyle(
-                    color: AppColors.textMuted, fontSize: 13)),
-            const SizedBox(height: 2),
-            Text('펫밀리', style: Theme.of(context).textTheme.headlineMedium),
+                    color: AppColors.textMuted, fontSize: 17)),
+            const SizedBox(height: AppSpacing.xs),
+            const Text('펫밀리',
+                style: TextStyle(
+                    fontSize: 29,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textStrong)),
           ],
         ),
         const Spacer(),
         Container(
-          width: 44,
-          height: 44,
+          width: 57,
+          height: 57,
           decoration: const BoxDecoration(
             color: AppColors.surface,
             shape: BoxShape.circle,
             boxShadow: AppShadows.soft,
           ),
           child: const Icon(Icons.notifications_none_rounded,
-              color: AppColors.textBody),
+              color: AppColors.textBody, size: 28),
         ),
       ],
     );
@@ -139,7 +143,7 @@ class _PetCarouselState extends ConsumerState<_PetCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 234,
+          height: 204,
           child: PageView.builder(
             controller: _controller,
             itemCount: pageCount,
@@ -203,8 +207,8 @@ class _PetCard extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
-                width: 132,
-                height: 132,
+                width: 116,
+                height: 116,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(AppRadius.xl),
@@ -279,8 +283,8 @@ class _AddPetCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 132,
-              height: 132,
+              width: 116,
+              height: 116,
               decoration: BoxDecoration(
                 color: Colors.white24,
                 borderRadius: BorderRadius.circular(AppRadius.xl),
