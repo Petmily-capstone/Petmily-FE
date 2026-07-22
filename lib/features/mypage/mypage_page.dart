@@ -30,6 +30,7 @@ class MyPage extends ConsumerWidget {
         children: [
           GradientHeader(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 72,
@@ -43,7 +44,10 @@ class MyPage extends ConsumerWidget {
                 Expanded(
                   child: HeaderTitle(
                     title: user?.name ?? '게스트',
-                    subtitle: user?.email ?? '',
+                    // 이메일이 없으면 빈 줄이 생기지 않도록 null 전달.
+                    subtitle: (user?.email.isNotEmpty ?? false)
+                        ? user!.email
+                        : null,
                   ),
                 ),
               ],
@@ -106,13 +110,13 @@ class _PetRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Row(
         children: [
           ClipOval(
             child: SizedBox(
-              width: 48,
-              height: 48,
+              width: 64,
+              height: 64,
               child: pet.imageUrl == null
                   ? Container(
                       color: AppColors.background,
@@ -130,19 +134,20 @@ class _PetRow extends StatelessWidget {
                     ),
             ),
           ),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: AppSpacing.lg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(pet.name,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 2),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 17)),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   [pet.species.label, if (pet.breed != null) pet.breed!]
                       .join(' · '),
                   style: const TextStyle(
-                      fontSize: 12, color: AppColors.textMuted),
+                      fontSize: 14, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -163,16 +168,18 @@ class _MenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
       // TODO: 각 설정 화면 연결.
       onTap: () {},
       child: Row(
         children: [
-          Icon(icon, color: AppColors.textBody, size: 20),
-          const SizedBox(width: AppSpacing.md),
+          Icon(icon, color: AppColors.textBody, size: 24),
+          const SizedBox(width: AppSpacing.lg),
           Text(label,
               style: const TextStyle(
-                  fontWeight: FontWeight.w600, color: AppColors.textStrong)),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: AppColors.textStrong)),
           const Spacer(),
           const Icon(Icons.chevron_right, color: AppColors.textMuted),
         ],
