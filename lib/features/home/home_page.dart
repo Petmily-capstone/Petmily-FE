@@ -46,19 +46,19 @@ class _HomeContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final check = state.todayCheck;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-          AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, 40),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.page, AppSpacing.xl,
+          AppSpacing.page, AppSpacing.section),
       children: [
         const _TopBar(),
         const SizedBox(height: AppSpacing.xxl),
         _PetCarousel(state: state),
-        const SizedBox(height: 36),
+        const SizedBox(height: AppSpacing.section),
         _LevelCard(pet: pet),
-        const SizedBox(height: 36),
+        const SizedBox(height: AppSpacing.section),
         _QuickCheckSection(check: check),
-        const SizedBox(height: 36),
+        const SizedBox(height: AppSpacing.section),
         _AiCommentCard(pet: pet),
-        const SizedBox(height: 40),
+        const SizedBox(height: AppSpacing.section),
         const _HealthContentSection(),
       ],
     );

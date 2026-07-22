@@ -32,38 +32,26 @@ class MyPage extends ConsumerWidget {
             child: Row(
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: 72,
+                  height: 72,
                   decoration: const BoxDecoration(
                       color: Colors.white, shape: BoxShape.circle),
-                  child: const Icon(Icons.person, color: AppColors.primary),
+                  child: const Icon(Icons.person,
+                      color: AppColors.primary, size: 34),
                 ),
                 const SizedBox(width: AppSpacing.lg),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user?.name ?? '게스트',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        user?.email ?? '',
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 13),
-                      ),
-                    ],
+                  child: HeaderTitle(
+                    title: user?.name ?? '게스트',
+                    subtitle: user?.email ?? '',
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.page,
+                AppSpacing.section, AppSpacing.page, AppSpacing.section),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -79,24 +67,24 @@ class MyPage extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.md),
                 if (pets.isEmpty)
                   const Text('등록된 반려동물이 없어요.',
                       style: TextStyle(color: AppColors.textMuted))
                 else
                   for (final pet in pets) ...[
                     _PetRow(pet: pet),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.lg),
                   ],
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.section),
                 Text('설정', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.md),
                 const _MenuTile(icon: Icons.notifications_outlined, label: '알림 설정'),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.lg),
                 const _MenuTile(icon: Icons.headset_mic_outlined, label: '고객센터'),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.lg),
                 const _MenuTile(icon: Icons.info_outline, label: '앱 정보'),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.section),
                 PrimaryButton(
                   label: '로그아웃',
                   variant: AppButtonVariant.ghost,
