@@ -50,15 +50,15 @@ class _HomeContent extends ConsumerWidget {
           AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, 40),
       children: [
         const _TopBar(),
-        const SizedBox(height: AppSpacing.xl),
+        const SizedBox(height: AppSpacing.xxl),
         _PetCarousel(state: state),
-        const SizedBox(height: AppSpacing.xxl),
+        const SizedBox(height: 36),
         _LevelCard(pet: pet),
-        const SizedBox(height: AppSpacing.xxl),
+        const SizedBox(height: 36),
         _QuickCheckSection(check: check),
-        const SizedBox(height: AppSpacing.xxl),
+        const SizedBox(height: 36),
         _AiCommentCard(pet: pet),
-        const SizedBox(height: AppSpacing.xxxl),
+        const SizedBox(height: 40),
         const _HealthContentSection(),
       ],
     );
@@ -139,7 +139,7 @@ class _PetCarouselState extends ConsumerState<_PetCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 156,
+          height: 234,
           child: PageView.builder(
             controller: _controller,
             itemCount: pageCount,
@@ -192,7 +192,7 @@ class _PetCard extends StatelessWidget {
         pet.allergies.isEmpty ? '없음' : pet.allergies.join(', ');
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+      padding: const EdgeInsets.all(AppSpacing.xxl),
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
         borderRadius: BorderRadius.circular(AppRadius.xxl),
@@ -203,20 +203,20 @@ class _PetCard extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
-                width: 96,
-                height: 96,
+                width: 132,
+                height: 132,
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: pet.imageUrl == null
-                    ? const Icon(Icons.pets, color: AppColors.primary, size: 36)
+                    ? const Icon(Icons.pets, color: AppColors.primary, size: 48)
                     : CachedNetworkImage(
                         imageUrl: pet.imageUrl!,
                         fit: BoxFit.cover,
                         errorWidget: (_, _, _) => const Icon(Icons.pets,
-                            color: AppColors.primary, size: 36),
+                            color: AppColors.primary, size: 48),
                       ),
               ),
               Positioned(
@@ -235,7 +235,7 @@ class _PetCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(width: AppSpacing.lg),
+          const SizedBox(width: AppSpacing.xl),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,16 +244,16 @@ class _PetCard extends StatelessWidget {
                 Text(pet.name,
                     style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 26,
                         fontWeight: FontWeight.w800)),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.sm),
                 Text(subtitle,
                     style: const TextStyle(
-                        color: Colors.white70, fontSize: 13)),
-                const SizedBox(height: 6),
+                        color: Colors.white70, fontSize: 15)),
+                const SizedBox(height: AppSpacing.md),
                 Text('🌿 알러지: $allergy',
                     style:
-                        const TextStyle(color: Colors.white, fontSize: 12)),
+                        const TextStyle(color: Colors.white, fontSize: 14)),
               ],
             ),
           ),
@@ -271,7 +271,7 @@ class _AddPetCard extends StatelessWidget {
     return ScaleTap(
       onTap: () => context.push(Routes.petSetup),
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         decoration: BoxDecoration(
           gradient: AppColors.headerGradient,
           borderRadius: BorderRadius.circular(AppRadius.xxl),
@@ -279,16 +279,16 @@ class _AddPetCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 96,
-              height: 96,
+              width: 132,
+              height: 132,
               decoration: BoxDecoration(
                 color: Colors.white24,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
+                borderRadius: BorderRadius.circular(AppRadius.xl),
                 border: Border.all(color: Colors.white54, width: 1.5),
               ),
-              child: const Icon(Icons.add, color: Colors.white, size: 36),
+              child: const Icon(Icons.add, color: Colors.white, size: 48),
             ),
-            const SizedBox(width: AppSpacing.lg),
+            const SizedBox(width: AppSpacing.xl),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -296,11 +296,11 @@ class _AddPetCard extends StatelessWidget {
                 Text('반려동물 추가',
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 22,
                         fontWeight: FontWeight.w800)),
-                SizedBox(height: 4),
+                SizedBox(height: AppSpacing.sm),
                 Text('새 펫을 등록해보세요',
-                    style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    style: TextStyle(color: Colors.white70, fontSize: 15)),
               ],
             ),
           ],
@@ -483,22 +483,24 @@ class _AiCommentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xl, vertical: 28),
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
-        borderRadius: BorderRadius.circular(AppRadius.xl),
+        borderRadius: BorderRadius.circular(AppRadius.xxl),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 60,
+            height: 60,
             decoration: const BoxDecoration(
                 color: Colors.white24, shape: BoxShape.circle),
-            child: const Icon(Icons.smart_toy_outlined, color: Colors.white),
+            child: const Icon(Icons.smart_toy_outlined,
+                color: Colors.white, size: 30),
           ),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: AppSpacing.lg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -506,12 +508,13 @@ class _AiCommentCard extends StatelessWidget {
                 const Text('AI 건강 코멘트',
                     style: TextStyle(
                         color: Colors.white,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700)),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
                   '${pet.name}의 피부 상태가 걱정돼요. 오늘 피부 체크를 해보는 건 어떨까요? 🔍',
                   style: const TextStyle(
-                      color: Colors.white, fontSize: 13, height: 1.4),
+                      color: Colors.white, fontSize: 14.5, height: 1.5),
                 ),
               ],
             ),
