@@ -7,9 +7,8 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 import '../../state/auth_provider.dart';
 import '../../state/pet_provider.dart';
-import 'widgets/auth_text_field.dart';
 
-/// 로그인 화면. 이메일/비밀번호 + 소셜(카카오/구글) 로그인.
+/// 로그인 화면. 카카오 소셜 로그인만 제공한다.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
@@ -18,29 +17,15 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _email = TextEditingController(text: 'demo@petmily.app');
-  final _password = TextEditingController(text: 'password');
-
-  @override
-  void dispose() {
-    _email.dispose();
-    _password.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    final ok = await ref
-        .read(authProvider.notifier)
-        .signInWithEmail(_email.text.trim(), _password.text);
-    if (ok) await _routeAfterAuth();
-  }
-
-  Future<void> _social(Future<bool> Function() action) async {
-    final ok = await action();
-    if (ok) await _routeAfterAuth();
+  Future<void> _signInWithKakao() async {
+    final ok = await ref.read(authProvider.notifier).signInWithKakao();
+    if (!ok) return;
+    await _routeAfterAuth();
   }
 
   /// 로그인 후 최초 1회 분기: 등록된 펫이 없으면 펫 등록, 있으면 홈.
+  ///
+  /// TODO: 신규 회원(isNewUser)은 추가 정보 입력 화면으로 보내는 분기 추가.
   Future<void> _routeAfterAuth() async {
     final petState = await ref.read(petProvider.future);
     if (!mounted) return;
@@ -60,106 +45,56 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: AppSpacing.xxxl),
+              const Spacer(flex: 2),
               Center(
                 child: Container(
-                  width: 76,
-                  height: 76,
+                  width: 96,
+                  height: 96,
                   decoration: BoxDecoration(
                     gradient: AppColors.headerGradient,
-                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    borderRadius: BorderRadius.circular(AppRadius.xxl),
                   ),
-                  child: const Icon(Icons.pets, color: Colors.white, size: 40),
+                  child: const Icon(Icons.pets, color: Colors.white, size: 48),
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.xl),
               Text(
-                '펫밀리에 로그인',
+                '펫밀리',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: AppSpacing.xxxl),
-              AuthTextField(
-                controller: _email,
-                label: '이메일',
-                hint: 'example@petmily.app',
-                keyboardType: TextInputType.emailAddress,
+              const SizedBox(height: AppSpacing.sm),
+              const Text(
+                '우리 아이의 매일을 함께',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.textMuted, fontSize: 15),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              AuthTextField(
-                controller: _password,
-                label: '비밀번호',
-                hint: '비밀번호를 입력하세요',
-                obscure: true,
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              PrimaryButton(
-                label: '로그인',
-                loading: busy,
-                onPressed: busy ? null : _submit,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('아직 회원이 아니신가요?',
-                      style: TextStyle(color: AppColors.textMuted)),
-                  TextButton(
-                    onPressed: busy ? null : () => context.push(Routes.signup),
-                    child: const Text('회원가입'),
-                  ),
-                ],
-              ),
-              const _OrDivider(),
-              const SizedBox(height: AppSpacing.lg),
+              const Spacer(flex: 3),
               PrimaryButton(
                 label: '카카오로 시작하기',
                 icon: Icons.chat_bubble,
                 variant: AppButtonVariant.kakao,
-                onPressed: busy
-                    ? null
-                    : () => _social(
-                        ref.read(authProvider.notifier).signInWithKakao),
+                loading: busy,
+                onPressed: busy ? null : _signInWithKakao,
               ),
               const SizedBox(height: AppSpacing.md),
-              PrimaryButton(
-                label: 'Google로 시작하기',
-                icon: Icons.g_mobiledata,
-                variant: AppButtonVariant.google,
-                onPressed: busy
-                    ? null
-                    : () => _social(
-                        ref.read(authProvider.notifier).signInWithGoogle),
+              const Text(
+                '카카오 계정으로 간편하게 시작하세요',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
+              const SizedBox(height: AppSpacing.xl),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _OrDivider extends StatelessWidget {
-  const _OrDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-      child: Row(
-        children: [
-          Expanded(child: Divider(color: AppColors.border)),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Text('또는', style: TextStyle(color: AppColors.textMuted)),
-          ),
-          Expanded(child: Divider(color: AppColors.border)),
-        ],
       ),
     );
   }
