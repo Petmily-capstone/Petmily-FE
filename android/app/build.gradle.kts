@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.example.petmily_fe"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_secure_storage가 SDK 37을 요구해 명시적으로 지정(하위 호환).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

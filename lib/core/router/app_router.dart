@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/login_page.dart';
-import '../../features/auth/signup_page.dart';
 import '../../features/diagnosis/diagnosis_page.dart';
 import '../../features/home/home_page.dart';
 import '../../features/mypage/mypage_page.dart';
@@ -38,10 +37,6 @@ final appRouter = GoRouter(
     GoRoute(
       path: Routes.login,
       builder: (_, _) => const LoginPage(),
-    ),
-    GoRoute(
-      path: Routes.signup,
-      builder: (_, _) => const SignupPage(),
     ),
     GoRoute(
       path: Routes.petSetup,

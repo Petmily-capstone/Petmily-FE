@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 import '../../state/auth_provider.dart';
 import '../../state/pet_provider.dart';
-import 'widgets/auth_text_field.dart';
+import 'kakao_webview_page.dart';
 
-/// 로그인 화면. 이메일/비밀번호 + 소셜(카카오/구글) 로그인.
+/// 로그인 화면. 카카오 소셜 로그인만 제공한다.
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
@@ -18,30 +19,34 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _email = TextEditingController(text: 'demo@petmily.app');
-  final _password = TextEditingController(text: 'password');
+  Future<void> _signInWithKakao() async {
+    // 1) 인가 코드 획득. 목 모드에선 WebView 없이 더미 코드로 흐름만 태운다.
+    String code = 'mock-code';
+    if (!AppConfig.dev.useMock) {
+      final captured = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const KakaoAuthWebView()),
+      );
+      if (captured == null) return; // 사용자가 취소
+      code = captured;
+    }
 
-  @override
-  void dispose() {
-    _email.dispose();
-    _password.dispose();
-    super.dispose();
+    // 2) 코드를 서버에 넘겨 세션 발급.
+    final result = await ref.read(authProvider.notifier).loginWithKakao(code);
+    if (result == null || !mounted) return;
+
+    // 3) 신규/기존 분기.
+    await _routeAfterAuth(isNewUser: result.isNewUser);
   }
 
-  Future<void> _submit() async {
-    final ok = await ref
-        .read(authProvider.notifier)
-        .signInWithEmail(_email.text.trim(), _password.text);
-    if (ok) await _routeAfterAuth();
-  }
-
-  Future<void> _social(Future<bool> Function() action) async {
-    final ok = await action();
-    if (ok) await _routeAfterAuth();
-  }
-
-  /// 로그인 후 최초 1회 분기: 등록된 펫이 없으면 펫 등록, 있으면 홈.
-  Future<void> _routeAfterAuth() async {
+  /// 로그인 후 라우팅.
+  ///
+  /// 신규 회원은 온보딩(펫 등록)부터 시작. 기존 회원은 등록된 펫 유무로 홈/펫등록 분기.
+  /// TODO: 신규 회원 추가정보 입력 화면이 필요해지면 여기서 분기.
+  Future<void> _routeAfterAuth({required bool isNewUser}) async {
+    if (isNewUser) {
+      if (mounted) context.go(Routes.petSetup);
+      return;
+    }
     final petState = await ref.read(petProvider.future);
     if (!mounted) return;
     context.go(petState.pets.isEmpty ? Routes.petSetup : Routes.home);
@@ -60,106 +65,56 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: AppSpacing.xxxl),
+              const Spacer(flex: 2),
               Center(
                 child: Container(
-                  width: 76,
-                  height: 76,
+                  width: 96,
+                  height: 96,
                   decoration: BoxDecoration(
                     gradient: AppColors.headerGradient,
-                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    borderRadius: BorderRadius.circular(AppRadius.xxl),
                   ),
-                  child: const Icon(Icons.pets, color: Colors.white, size: 40),
+                  child: const Icon(Icons.pets, color: Colors.white, size: 48),
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.xl),
               Text(
-                '펫밀리에 로그인',
+                '펫밀리',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: AppSpacing.xxxl),
-              AuthTextField(
-                controller: _email,
-                label: '이메일',
-                hint: 'example@petmily.app',
-                keyboardType: TextInputType.emailAddress,
+              const SizedBox(height: AppSpacing.sm),
+              const Text(
+                '우리 아이의 매일을 함께',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.textMuted, fontSize: 15),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              AuthTextField(
-                controller: _password,
-                label: '비밀번호',
-                hint: '비밀번호를 입력하세요',
-                obscure: true,
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              PrimaryButton(
-                label: '로그인',
-                loading: busy,
-                onPressed: busy ? null : _submit,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('아직 회원이 아니신가요?',
-                      style: TextStyle(color: AppColors.textMuted)),
-                  TextButton(
-                    onPressed: busy ? null : () => context.push(Routes.signup),
-                    child: const Text('회원가입'),
-                  ),
-                ],
-              ),
-              const _OrDivider(),
-              const SizedBox(height: AppSpacing.lg),
+              const Spacer(flex: 3),
               PrimaryButton(
                 label: '카카오로 시작하기',
                 icon: Icons.chat_bubble,
                 variant: AppButtonVariant.kakao,
-                onPressed: busy
-                    ? null
-                    : () => _social(
-                        ref.read(authProvider.notifier).signInWithKakao),
+                loading: busy,
+                onPressed: busy ? null : _signInWithKakao,
               ),
               const SizedBox(height: AppSpacing.md),
-              PrimaryButton(
-                label: 'Google로 시작하기',
-                icon: Icons.g_mobiledata,
-                variant: AppButtonVariant.google,
-                onPressed: busy
-                    ? null
-                    : () => _social(
-                        ref.read(authProvider.notifier).signInWithGoogle),
+              const Text(
+                '카카오 계정으로 간편하게 시작하세요',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
+              const SizedBox(height: AppSpacing.xl),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _OrDivider extends StatelessWidget {
-  const _OrDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-      child: Row(
-        children: [
-          Expanded(child: Divider(color: AppColors.border)),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Text('또는', style: TextStyle(color: AppColors.textMuted)),
-          ),
-          Expanded(child: Divider(color: AppColors.border)),
-        ],
       ),
     );
   }
