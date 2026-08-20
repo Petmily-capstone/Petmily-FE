@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 import '../../state/auth_provider.dart';
 import '../../state/pet_provider.dart';
+import 'kakao_webview_page.dart';
 
 /// 로그인 화면. 카카오 소셜 로그인만 제공한다.
 class LoginPage extends ConsumerStatefulWidget {
@@ -18,15 +20,33 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   Future<void> _signInWithKakao() async {
-    final ok = await ref.read(authProvider.notifier).signInWithKakao();
-    if (!ok) return;
-    await _routeAfterAuth();
+    // 1) 인가 코드 획득. 목 모드에선 WebView 없이 더미 코드로 흐름만 태운다.
+    String code = 'mock-code';
+    if (!AppConfig.dev.useMock) {
+      final captured = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const KakaoAuthWebView()),
+      );
+      if (captured == null) return; // 사용자가 취소
+      code = captured;
+    }
+
+    // 2) 코드를 서버에 넘겨 세션 발급.
+    final result = await ref.read(authProvider.notifier).loginWithKakao(code);
+    if (result == null || !mounted) return;
+
+    // 3) 신규/기존 분기.
+    await _routeAfterAuth(isNewUser: result.isNewUser);
   }
 
-  /// 로그인 후 최초 1회 분기: 등록된 펫이 없으면 펫 등록, 있으면 홈.
+  /// 로그인 후 라우팅.
   ///
-  /// TODO: 신규 회원(isNewUser)은 추가 정보 입력 화면으로 보내는 분기 추가.
-  Future<void> _routeAfterAuth() async {
+  /// 신규 회원은 온보딩(펫 등록)부터 시작. 기존 회원은 등록된 펫 유무로 홈/펫등록 분기.
+  /// TODO: 신규 회원 추가정보 입력 화면이 필요해지면 여기서 분기.
+  Future<void> _routeAfterAuth({required bool isNewUser}) async {
+    if (isNewUser) {
+      if (mounted) context.go(Routes.petSetup);
+      return;
+    }
     final petState = await ref.read(petProvider.future);
     if (!mounted) return;
     context.go(petState.pets.isEmpty ? Routes.petSetup : Routes.home);

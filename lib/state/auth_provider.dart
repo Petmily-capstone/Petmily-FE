@@ -54,49 +54,37 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
-  Future<bool> signInWithEmail(String email, String password) {
-    return _run(() =>
-        ref.read(authRepositoryProvider).signInWithEmail(email, password));
-  }
-
-  Future<bool> signUpWithEmail({
-    required String name,
-    required String email,
-    required String password,
-  }) {
-    return _run(() => ref.read(authRepositoryProvider).signUpWithEmail(
-          name: name,
-          email: email,
-          password: password,
-        ));
-  }
-
-  Future<bool> signInWithKakao() =>
-      _run(() => ref.read(authRepositoryProvider).signInWithKakao());
-
-  Future<bool> signInWithGoogle() =>
-      _run(() => ref.read(authRepositoryProvider).signInWithGoogle());
-
-  Future<void> signOut() async {
-    await ref.read(authRepositoryProvider).signOut();
-    state = const AuthState(status: AuthStatus.unauthenticated);
-  }
-
-  /// 공통 실행 래퍼: 제출중 표시 → 실행 → 성공/에러 상태 반영.
-  Future<bool> _run(Future<AppUser> Function() action) async {
+  /// 카카오 인가 코드로 로그인한다.
+  ///
+  /// 성공 시 [AuthResult](신규회원 여부 포함)를 반환하고, 실패 시 null.
+  /// 화면은 반환값의 [AuthResult.isNewUser]로 이후 라우팅을 분기한다.
+  Future<AuthResult?> loginWithKakao(String code) async {
     state = state.copyWith(isSubmitting: true);
     try {
-      final user = await action();
-      state = AuthState(status: AuthStatus.authenticated, user: user);
-      return true;
+      final result = await ref.read(authRepositoryProvider).signInWithKakao(code);
+      state = AuthState(
+        status: AuthStatus.authenticated,
+        user: AppUser(
+          id: '${result.userId}',
+          name: result.nickname,
+          email: '',
+          provider: AuthProvider.kakao,
+        ),
+      );
+      return result;
     } catch (e) {
       state = state.copyWith(
         status: AuthStatus.unauthenticated,
         isSubmitting: false,
-        error: '요청을 처리하지 못했습니다. 다시 시도해 주세요.',
+        error: '카카오 로그인에 실패했습니다. 다시 시도해 주세요.',
       );
-      return false;
+      return null;
     }
+  }
+
+  Future<void> signOut() async {
+    await ref.read(authRepositoryProvider).signOut();
+    state = const AuthState(status: AuthStatus.unauthenticated);
   }
 }
 

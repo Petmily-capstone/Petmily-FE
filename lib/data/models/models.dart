@@ -2,6 +2,7 @@
 library;
 
 export 'app_user.dart';
+export 'auth_result.dart';
 export 'cart_item.dart';
 export 'daily_check.dart';
 export 'diagnosis.dart';

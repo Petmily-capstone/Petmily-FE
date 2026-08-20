@@ -3,7 +3,6 @@ abstract final class Routes {
   static const splash = '/splash';
   static const onboarding = '/onboarding';
   static const login = '/login';
-  static const signup = '/signup';
 
   /// 펫 등록/수정. `?mode=add` 등 쿼리로 분기.
   static const petSetup = '/pet-setup';

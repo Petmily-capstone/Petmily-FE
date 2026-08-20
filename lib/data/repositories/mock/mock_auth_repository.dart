@@ -1,55 +1,47 @@
 import '../../models/models.dart';
-import '../../mock/mock_data.dart';
 import '../auth_repository.dart';
 
 /// 목 인증 구현. 메모리 세션만 유지한다.
+///
+/// 백엔드 없이 흐름을 확인할 때 쓴다. 첫 로그인은 신규 회원(isNewUser=true)으로,
+/// 이후 로그인은 기존 회원으로 시뮬레이션한다.
 class MockAuthRepository implements AuthRepository {
-  AppUser? _current;
+  AuthResult? _session;
+  bool _firstLogin = true;
 
   static const _latency = Duration(milliseconds: 400);
 
   @override
   Future<AppUser?> currentUser() async {
     await Future.delayed(_latency);
-    return _current;
+    final session = _session;
+    return session == null ? null : _userFrom(session);
   }
 
   @override
-  Future<AppUser> signInWithEmail(String email, String password) async {
+  Future<AuthResult> signInWithKakao(String code) async {
     await Future.delayed(_latency);
-    // 목: 자격 검증 없이 데모 사용자로 로그인.
-    return _current = MockData.demoUser.copyWith(email: email);
-  }
-
-  @override
-  Future<AppUser> signUpWithEmail({
-    required String name,
-    required String email,
-    required String password,
-  }) async {
-    await Future.delayed(_latency);
-    return _current = MockData.demoUser.copyWith(name: name, email: email);
-  }
-
-  @override
-  Future<AppUser> signInWithKakao() async {
-    await Future.delayed(_latency);
-    // TODO: 카카오 SDK 연동.
-    return _current =
-        MockData.demoUser.copyWith(provider: AuthProvider.kakao);
-  }
-
-  @override
-  Future<AppUser> signInWithGoogle() async {
-    await Future.delayed(_latency);
-    // TODO: Google 로그인 연동.
-    return _current =
-        MockData.demoUser.copyWith(provider: AuthProvider.google);
+    final result = AuthResult(
+      accessToken: 'mock-access-token',
+      refreshToken: 'mock-refresh-token',
+      userId: 1,
+      nickname: '멋쟁이 집사',
+      isNewUser: _firstLogin,
+    );
+    _firstLogin = false;
+    return _session = result;
   }
 
   @override
   Future<void> signOut() async {
     await Future.delayed(_latency);
-    _current = null;
+    _session = null;
   }
+
+  AppUser _userFrom(AuthResult r) => AppUser(
+        id: '${r.userId}',
+        name: r.nickname,
+        email: '',
+        provider: AuthProvider.kakao,
+      );
 }

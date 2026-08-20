@@ -1,8 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 네트워크 요청(API 호출·카카오 WebView)에 필요. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- usesCleartextTraffic: 개발용 http://10.0.2.2:8080 등 평문 백엔드 접속 허용.
+         배포(https)에서는 제거하거나 network-security-config로 좁힐 것. -->
     <application
         android:label="petmily_fe"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
