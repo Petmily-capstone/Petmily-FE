@@ -35,17 +35,21 @@ class _ScaleTapState extends State<ScaleTap> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: widget.onTap,
-      onTapDown: (_) => _setPressed(true),
-      onTapUp: (_) => _setPressed(false),
-      onTapCancel: () => _setPressed(false),
-      child: AnimatedScale(
-        scale: _pressed ? widget.scale : 1.0,
-        duration: widget.duration,
-        curve: Curves.easeOut,
-        child: widget.child,
+    return MouseRegion(
+      // 웹/데스크톱에서 누를 수 있을 때만 손가락 커서를 보여준다.
+      cursor: _enabled ? SystemMouseCursors.click : MouseCursor.defer,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        onTapDown: (_) => _setPressed(true),
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        child: AnimatedScale(
+          scale: _pressed ? widget.scale : 1.0,
+          duration: widget.duration,
+          curve: Curves.easeOut,
+          child: widget.child,
+        ),
       ),
     );
   }

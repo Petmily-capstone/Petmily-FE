@@ -19,6 +19,27 @@ class MyPage extends ConsumerWidget {
     if (context.mounted) context.go(Routes.login);
   }
 
+  Future<void> _editName(
+    BuildContext context,
+    WidgetRef ref,
+    String current,
+  ) async {
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => _EditNameDialog(initial: current),
+    );
+    if (name == null) return;
+    try {
+      await ref.read(authProvider.notifier).updateDisplayName(name);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이름 변경에 실패했어요. 다시 시도해 주세요.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider.select((s) => s.user));
@@ -36,9 +57,14 @@ class MyPage extends ConsumerWidget {
                   width: 72,
                   height: 72,
                   decoration: const BoxDecoration(
-                      color: Colors.white, shape: BoxShape.circle),
-                  child: const Icon(Icons.person,
-                      color: AppColors.primary, size: 34),
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    color: AppColors.primary,
+                    size: 34,
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.lg),
                 Expanded(
@@ -50,20 +76,32 @@ class MyPage extends ConsumerWidget {
                         : null,
                   ),
                 ),
+                if (user != null)
+                  IconButton(
+                    onPressed: () => _editName(context, ref, user.name),
+                    icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                    tooltip: '이름 편집',
+                  ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.page,
-                AppSpacing.section, AppSpacing.page, AppSpacing.section),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.page,
+              AppSpacing.section,
+              AppSpacing.page,
+              AppSpacing.section,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('내 반려동물',
-                        style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      '내 반려동물',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     TextButton.icon(
                       onPressed: () => context.push(Routes.petSetup),
                       icon: const Icon(Icons.add, size: 18),
@@ -73,8 +111,10 @@ class MyPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 if (pets.isEmpty)
-                  const Text('등록된 반려동물이 없어요.',
-                      style: TextStyle(color: AppColors.textMuted))
+                  const Text(
+                    '등록된 반려동물이 없어요.',
+                    style: TextStyle(color: AppColors.textMuted),
+                  )
                 else
                   for (final pet in pets) ...[
                     _PetRow(pet: pet),
@@ -83,9 +123,15 @@ class MyPage extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.section),
                 Text('설정', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: AppSpacing.md),
-                const _MenuTile(icon: Icons.notifications_outlined, label: '알림 설정'),
+                const _MenuTile(
+                  icon: Icons.notifications_outlined,
+                  label: '알림 설정',
+                ),
                 const SizedBox(height: AppSpacing.lg),
-                const _MenuTile(icon: Icons.headset_mic_outlined, label: '고객센터'),
+                const _MenuTile(
+                  icon: Icons.headset_mic_outlined,
+                  label: '고객센터',
+                ),
                 const SizedBox(height: AppSpacing.lg),
                 const _MenuTile(icon: Icons.info_outline, label: '앱 정보'),
                 const SizedBox(height: AppSpacing.section),
@@ -120,16 +166,20 @@ class _PetRow extends StatelessWidget {
               child: pet.imageUrl == null
                   ? Container(
                       color: AppColors.background,
-                      child:
-                          const Icon(Icons.pets, color: AppColors.primaryLight),
+                      child: const Icon(
+                        Icons.pets,
+                        color: AppColors.primaryLight,
+                      ),
                     )
                   : CachedNetworkImage(
                       imageUrl: pet.imageUrl!,
                       fit: BoxFit.cover,
                       errorWidget: (_, _, _) => Container(
                         color: AppColors.background,
-                        child: const Icon(Icons.pets,
-                            color: AppColors.primaryLight),
+                        child: const Icon(
+                          Icons.pets,
+                          color: AppColors.primaryLight,
+                        ),
                       ),
                     ),
             ),
@@ -139,15 +189,23 @@ class _PetRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(pet.name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 17)),
+                Text(
+                  pet.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 17,
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  [pet.species.label, if (pet.breed != null) pet.breed!]
-                      .join(' · '),
+                  [
+                    pet.species.label,
+                    if (pet.breed != null) pet.breed!,
+                  ].join(' · '),
                   style: const TextStyle(
-                      fontSize: 14, color: AppColors.textMuted),
+                    fontSize: 14,
+                    color: AppColors.textMuted,
+                  ),
                 ),
               ],
             ),
@@ -155,6 +213,58 @@ class _PetRow extends StatelessWidget {
           AppBadge(label: 'Lv.${pet.level}', color: AppBadgeColor.blue),
         ],
       ),
+    );
+  }
+}
+
+/// 표시 이름 편집 다이얼로그. 확인 시 새 이름을, 취소 시 null을 반환한다.
+class _EditNameDialog extends StatefulWidget {
+  const _EditNameDialog({required this.initial});
+  final String initial;
+
+  @override
+  State<_EditNameDialog> createState() => _EditNameDialogState();
+}
+
+class _EditNameDialogState extends State<_EditNameDialog> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initial,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final name = _controller.text.trim();
+    if (name.isEmpty) return;
+    Navigator.of(context).pop(name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('이름 편집'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLength: 20,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => _submit(),
+        decoration: const InputDecoration(
+          hintText: '이름을 입력하세요',
+          counterText: '',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('취소'),
+        ),
+        TextButton(onPressed: _submit, child: const Text('저장')),
+      ],
     );
   }
 }
@@ -168,18 +278,23 @@ class _MenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xl,
+      ),
       // TODO: 각 설정 화면 연결.
       onTap: () {},
       child: Row(
         children: [
           Icon(icon, color: AppColors.textBody, size: 24),
           const SizedBox(width: AppSpacing.lg),
-          Text(label,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: AppColors.textStrong)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: AppColors.textStrong,
+            ),
+          ),
           const Spacer(),
           const Icon(Icons.chevron_right, color: AppColors.textMuted),
         ],

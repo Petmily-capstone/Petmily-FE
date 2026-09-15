@@ -124,6 +124,125 @@ class ChoiceCard extends StatelessWidget {
   }
 }
 
+/// 품종 선택기. 고정 카탈로그 칩 + '직접 입력' 칩.
+///
+/// '직접 입력'을 고르면 [customController]에 연결된 자유 입력 필드가 나타난다.
+class BreedSelector extends StatelessWidget {
+  const BreedSelector({
+    super.key,
+    required this.breeds,
+    required this.selected,
+    required this.customSelected,
+    required this.customController,
+    required this.onSelect,
+    required this.onSelectCustom,
+    required this.onCustomChanged,
+  });
+
+  /// 선택 가능한 품종 라벨 목록.
+  final List<String> breeds;
+
+  /// 현재 선택된 품종 라벨(직접 입력 모드거나 미선택이면 null).
+  final String? selected;
+
+  /// '직접 입력' 모드 여부.
+  final bool customSelected;
+
+  final TextEditingController customController;
+  final ValueChanged<String> onSelect;
+  final VoidCallback onSelectCustom;
+  final ValueChanged<String> onCustomChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            for (final breed in breeds)
+              _BreedChip(
+                label: breed,
+                selected: !customSelected && selected == breed,
+                onTap: () => onSelect(breed),
+              ),
+            _BreedChip(
+              label: '직접 입력',
+              icon: Icons.edit_outlined,
+              selected: customSelected,
+              onTap: onSelectCustom,
+            ),
+          ],
+        ),
+        if (customSelected) ...[
+          const SizedBox(height: AppSpacing.lg),
+          WizardTextField(
+            controller: customController,
+            hint: '품종을 입력하세요',
+            autofocus: true,
+            onChanged: onCustomChanged,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// 품종 선택 칩.
+class _BreedChip extends StatelessWidget {
+  const _BreedChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.icon,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTap(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFEFF6FF) : AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.border,
+            width: selected ? 1.6 : 1.2,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon,
+                  size: 15,
+                  color: selected ? AppColors.primary : AppColors.textMuted),
+              const SizedBox(width: AppSpacing.xs),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: selected ? AppColors.primary : AppColors.textStrong,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// 위저드 공용 입력 필드.
 class WizardTextField extends StatelessWidget {
   const WizardTextField({

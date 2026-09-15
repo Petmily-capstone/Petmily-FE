@@ -9,17 +9,32 @@ part of 'health_content.dart';
 _HealthContent _$HealthContentFromJson(Map<String, dynamic> json) =>
     _HealthContent(
       id: json['id'] as String,
-      category: json['category'] as String,
+      category: $enumDecode(_$ContentCategoryEnumMap, json['category']),
       title: json['title'] as String,
-      summary: json['summary'] as String,
-      imageUrl: json['imageUrl'] as String?,
+      body: json['body'] as String,
+      imageUrls:
+          (json['imageUrls'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const <String>[],
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$HealthContentToJson(_HealthContent instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'category': instance.category,
+      'category': _$ContentCategoryEnumMap[instance.category]!,
       'title': instance.title,
-      'summary': instance.summary,
-      'imageUrl': instance.imageUrl,
+      'body': instance.body,
+      'imageUrls': instance.imageUrls,
+      'createdAt': instance.createdAt?.toIso8601String(),
     };
+
+const _$ContentCategoryEnumMap = {
+  ContentCategory.skin: 'skin',
+  ContentCategory.joint: 'joint',
+  ContentCategory.diet: 'diet',
+  ContentCategory.etc: 'etc',
+};

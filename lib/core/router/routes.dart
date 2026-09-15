@@ -16,6 +16,15 @@ abstract final class Routes {
   // 하위 화면
   static const cart = '/cart';
 
+  /// 건강 콘텐츠 전체보기.
+  static const healthContents = '/health-contents';
+
+  /// 건강 콘텐츠 작성.
+  static const contentCompose = '/health-contents/compose';
+
+  /// 건강 콘텐츠 상세: `/health-contents/:id`.
+  static String contentDetail(String id) => '/health-contents/$id';
+
   /// 상품 상세: `/shop/:id`.
   static String productDetail(String id) => '/shop/$id';
 }

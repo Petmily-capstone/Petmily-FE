@@ -18,7 +18,8 @@ class MockShopRepository implements ShopRepository {
     return _products.where((p) {
       final speciesOk = species == null || p.species == species;
       final categoryOk = category == null || p.category == category;
-      final queryOk = q == null ||
+      final queryOk =
+          q == null ||
           q.isEmpty ||
           p.name.toLowerCase().contains(q) ||
           p.brand.toLowerCase().contains(q);
@@ -39,9 +40,8 @@ class MockShopRepository implements ShopRepository {
   Future<List<Product>> fetchRecommended(String petId) async {
     await Future.delayed(_latency);
     // 목: 맞춤 점수가 높은 상품 상위 5개(AI 추천 TOP 5).
-    final items =
-        _products.where((p) => p.matchScore != null).toList()
-          ..sort((a, b) => b.matchScore!.compareTo(a.matchScore!));
+    final items = _products.where((p) => p.matchScore != null).toList()
+      ..sort((a, b) => b.matchScore!.compareTo(a.matchScore!));
     return items.take(5).toList();
   }
 

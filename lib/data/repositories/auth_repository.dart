@@ -17,4 +17,7 @@ abstract interface class AuthRepository {
   Future<AuthResult> signInWithKakao(String code);
 
   Future<void> signOut();
+
+  /// 표시 이름(닉네임)을 변경하고 갱신된 사용자를 반환한다.
+  Future<AppUser> updateDisplayName(String name);
 }

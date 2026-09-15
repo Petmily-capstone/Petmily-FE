@@ -46,8 +46,7 @@ class MockPetRepository implements PetRepository {
   @override
   Future<DailyCheck> fetchDailyCheck(String petId, DateTime date) async {
     await Future.delayed(_latency);
-    return _checks[_key(petId, date)] ??
-        DailyCheck(petId: petId, date: date);
+    return _checks[_key(petId, date)] ?? DailyCheck(petId: petId, date: date);
   }
 
   @override
@@ -71,8 +70,9 @@ class MockPetRepository implements PetRepository {
     final i = _pets.indexWhere((p) => p.id == petId);
     if (i == -1) throw StateError('존재하지 않는 펫: $petId');
     final delta = wasDone ? -type.exp : type.exp;
-    final updatedPet =
-        _pets[i].copyWith(exp: (_pets[i].exp + delta).clamp(0, 1 << 30));
+    final updatedPet = _pets[i].copyWith(
+      exp: (_pets[i].exp + delta).clamp(0, 1 << 30),
+    );
     _pets[i] = updatedPet;
 
     return (updatedPet, updatedCheck);

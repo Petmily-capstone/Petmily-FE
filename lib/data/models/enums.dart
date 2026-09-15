@@ -25,6 +25,91 @@ enum PetGender {
       };
 }
 
+/// 대중적인 강아지 품종 카탈로그.
+///
+/// 선택지는 고정이지만, 목록에 없는 품종은 UI의 '직접 입력'으로 자유 문자열을
+/// 받는다. 그래서 [Pet.breed]는 enum이 아니라 라벨 문자열로 저장한다.
+enum DogBreed {
+  maltese,
+  poodle,
+  pomeranian,
+  shihTzu,
+  chihuahua,
+  welshCorgi,
+  goldenRetriever,
+  jindo,
+  bichonFrise,
+  yorkshireTerrier,
+  dachshund,
+  shibaInu,
+  borderCollie,
+  labradorRetriever,
+  frenchBulldog;
+
+  String get label => switch (this) {
+        DogBreed.maltese => '말티즈',
+        DogBreed.poodle => '푸들',
+        DogBreed.pomeranian => '포메라니안',
+        DogBreed.shihTzu => '시츄',
+        DogBreed.chihuahua => '치와와',
+        DogBreed.welshCorgi => '웰시코기',
+        DogBreed.goldenRetriever => '골든리트리버',
+        DogBreed.jindo => '진돗개',
+        DogBreed.bichonFrise => '비숑프리제',
+        DogBreed.yorkshireTerrier => '요크셔테리어',
+        DogBreed.dachshund => '닥스훈트',
+        DogBreed.shibaInu => '시바견',
+        DogBreed.borderCollie => '보더콜리',
+        DogBreed.labradorRetriever => '래브라도리트리버',
+        DogBreed.frenchBulldog => '프렌치불독',
+      };
+}
+
+/// 대중적인 고양이 품종 카탈로그. [DogBreed]와 동일한 정책.
+enum CatBreed {
+  koreanShorthair,
+  persian,
+  russianBlue,
+  scottishFold,
+  britishShorthair,
+  munchkin,
+  ragdoll,
+  americanShorthair,
+  bengal,
+  siamese,
+  norwegianForest,
+  maineCoon,
+  abyssinian,
+  turkishAngora,
+  sphynx;
+
+  String get label => switch (this) {
+        CatBreed.koreanShorthair => '코리안숏헤어',
+        CatBreed.persian => '페르시안',
+        CatBreed.russianBlue => '러시안블루',
+        CatBreed.scottishFold => '스코티시폴드',
+        CatBreed.britishShorthair => '브리티시숏헤어',
+        CatBreed.munchkin => '먼치킨',
+        CatBreed.ragdoll => '랙돌',
+        CatBreed.americanShorthair => '아메리칸숏헤어',
+        CatBreed.bengal => '뱅갈',
+        CatBreed.siamese => '샴',
+        CatBreed.norwegianForest => '노르웨이숲',
+        CatBreed.maineCoon => '메인쿤',
+        CatBreed.abyssinian => '아비시니안',
+        CatBreed.turkishAngora => '터키시앙고라',
+        CatBreed.sphynx => '스핑크스',
+      };
+}
+
+/// 종에 맞는 품종 라벨 목록. 목록에 없으면 '직접 입력'으로 자유 입력한다.
+extension PetSpeciesBreeds on PetSpecies {
+  List<String> get breedLabels => switch (this) {
+        PetSpecies.dog => [for (final b in DogBreed.values) b.label],
+        PetSpecies.cat => [for (final b in CatBreed.values) b.label],
+      };
+}
+
 /// 강아지 크기 분류.
 enum DogSize {
   small,
@@ -116,6 +201,27 @@ enum ProductCategory {
         ProductCategory.supplement => '💊',
         ProductCategory.snack => '🌰',
       };
+}
+
+/// 건강 콘텐츠(게시글) 태그.
+enum ContentCategory {
+  skin,
+  joint,
+  diet,
+  etc;
+
+  String get label => switch (this) {
+        ContentCategory.skin => '피부관리',
+        ContentCategory.joint => '관절건강',
+        ContentCategory.diet => '식이관리',
+        ContentCategory.etc => '기타',
+      };
+
+  /// 라벨로 역매핑(없으면 [ContentCategory.etc]). 서버/목 문자열 매핑용.
+  static ContentCategory fromLabel(String label) => values.firstWhere(
+        (c) => c.label == label,
+        orElse: () => ContentCategory.etc,
+      );
 }
 
 /// 성분 분석 분류.

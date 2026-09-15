@@ -23,6 +23,10 @@ class TokenStore {
     await _storage.write(key: _kNickname, value: result.nickname);
   }
 
+  /// 표시 이름(닉네임)만 갱신한다.
+  Future<void> updateNickname(String nickname) =>
+      _storage.write(key: _kNickname, value: nickname);
+
   Future<String?> readAccessToken() => _storage.read(key: _kAccess);
 
   Future<String?> readRefreshToken() => _storage.read(key: _kRefresh);
