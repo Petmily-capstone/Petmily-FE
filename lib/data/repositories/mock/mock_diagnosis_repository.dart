@@ -50,32 +50,29 @@ class MockDiagnosisRepository implements DiagnosisRepository {
   }
 
   String _titleFor(DiagnosisSeverity s) => switch (s) {
-        DiagnosisSeverity.high => '즉시 진료가 필요한 증상 의심',
-        DiagnosisSeverity.medium => '경과 관찰이 필요한 증상',
-        DiagnosisSeverity.low => '경미한 증상으로 보입니다',
-      };
+    DiagnosisSeverity.high => '즉시 진료가 필요한 증상 의심',
+    DiagnosisSeverity.medium => '경과 관찰이 필요한 증상',
+    DiagnosisSeverity.low => '경미한 증상으로 보입니다',
+  };
 
   String _summaryFor(DiagnosisSeverity s) => switch (s) {
-        DiagnosisSeverity.high =>
-          '위험 신호가 감지되었습니다. 가까운 동물병원에 바로 방문하세요.',
-        DiagnosisSeverity.medium =>
-          '당장 위급하진 않지만 증상이 지속되면 진료가 필요합니다.',
-        DiagnosisSeverity.low =>
-          '일시적인 컨디션 저하로 보입니다. 수분과 휴식을 챙겨 주세요.',
-      };
+    DiagnosisSeverity.high => '위험 신호가 감지되었습니다. 가까운 동물병원에 바로 방문하세요.',
+    DiagnosisSeverity.medium => '당장 위급하진 않지만 증상이 지속되면 진료가 필요합니다.',
+    DiagnosisSeverity.low => '일시적인 컨디션 저하로 보입니다. 수분과 휴식을 챙겨 주세요.',
+  };
 
   List<String> _recommendationsFor(DiagnosisSeverity s) => switch (s) {
-        DiagnosisSeverity.high => [
-            '지체 없이 동물병원에 방문하세요.',
-            '이동 중 반려동물을 안정시키고 체온을 유지하세요.',
-          ],
-        DiagnosisSeverity.medium => [
-            '식사·배변·활동량을 기록해 두세요.',
-            '48시간 내 호전되지 않으면 진료를 받으세요.',
-          ],
-        DiagnosisSeverity.low => [
-            '충분한 수분과 휴식을 제공하세요.',
-            '증상 변화를 관찰하고 악화 시 병원을 찾으세요.',
-          ],
-      };
+    DiagnosisSeverity.high => [
+      '지체 없이 동물병원에 방문하세요.',
+      '이동 중 반려동물을 안정시키고 체온을 유지하세요.',
+    ],
+    DiagnosisSeverity.medium => [
+      '식사·배변·활동량을 기록해 두세요.',
+      '48시간 내 호전되지 않으면 진료를 받으세요.',
+    ],
+    DiagnosisSeverity.low => [
+      '충분한 수분과 휴식을 제공하세요.',
+      '증상 변화를 관찰하고 악화 시 병원을 찾으세요.',
+    ],
+  };
 }

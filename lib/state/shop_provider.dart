@@ -125,8 +125,3 @@ final cartCountProvider = Provider<int>((ref) {
   final items = ref.watch(cartProvider);
   return items.fold(0, (sum, item) => sum + item.quantity);
 });
-
-/// 홈 '건강 콘텐츠' 목록.
-final healthContentsProvider = FutureProvider<List<HealthContent>>((ref) async {
-  return ref.watch(contentRepositoryProvider).fetchHealthContents();
-});

@@ -8,6 +8,8 @@ import '../auth_repository.dart';
 class MockAuthRepository implements AuthRepository {
   AuthResult? _session;
   bool _firstLogin = true;
+  // 사용자가 변경한 표시 이름(로그인 세션의 닉네임을 덮어쓴다).
+  String? _displayName;
 
   static const _latency = Duration(milliseconds: 400);
 
@@ -36,12 +38,24 @@ class MockAuthRepository implements AuthRepository {
   Future<void> signOut() async {
     await Future.delayed(_latency);
     _session = null;
+    _displayName = null;
+  }
+
+  @override
+  Future<AppUser> updateDisplayName(String name) async {
+    await Future.delayed(_latency);
+    final session = _session;
+    if (session == null) {
+      throw StateError('로그인 상태가 아니에요.');
+    }
+    _displayName = name;
+    return _userFrom(session);
   }
 
   AppUser _userFrom(AuthResult r) => AppUser(
-        id: '${r.userId}',
-        name: r.nickname,
-        email: '',
-        provider: AuthProvider.kakao,
-      );
+    id: '${r.userId}',
+    name: _displayName ?? r.nickname,
+    email: '',
+    provider: AuthProvider.kakao,
+  );
 }

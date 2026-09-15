@@ -48,8 +48,9 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> _restoreSession() async {
     final user = await ref.read(authRepositoryProvider).currentUser();
     state = AuthState(
-      status:
-          user == null ? AuthStatus.unauthenticated : AuthStatus.authenticated,
+      status: user == null
+          ? AuthStatus.unauthenticated
+          : AuthStatus.authenticated,
       user: user,
     );
   }
@@ -61,7 +62,9 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<AuthResult?> loginWithKakao(String code) async {
     state = state.copyWith(isSubmitting: true);
     try {
-      final result = await ref.read(authRepositoryProvider).signInWithKakao(code);
+      final result = await ref
+          .read(authRepositoryProvider)
+          .signInWithKakao(code);
       state = AuthState(
         status: AuthStatus.authenticated,
         user: AppUser(
@@ -86,7 +89,18 @@ class AuthNotifier extends Notifier<AuthState> {
     await ref.read(authRepositoryProvider).signOut();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
+
+  /// 표시 이름을 변경한다.
+  Future<void> updateDisplayName(String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return;
+    final user = await ref
+        .read(authRepositoryProvider)
+        .updateDisplayName(trimmed);
+    state = state.copyWith(user: user);
+  }
 }
 
-final authProvider =
-    NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);

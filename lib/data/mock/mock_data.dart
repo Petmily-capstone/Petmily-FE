@@ -246,30 +246,36 @@ abstract final class MockData {
         ),
       ];
 
-  static List<HealthContent> healthContents() => const [
+  static List<HealthContent> healthContents() => [
         HealthContent(
           id: 'h1',
-          category: '피부관리',
+          category: ContentCategory.skin,
           title: '말티즈 여름 피부 관리법',
-          summary: '피부 트러블 예방 가이드',
-          imageUrl:
-              'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400',
+          body: '무더운 여름철, 말티즈의 피부 트러블을 예방하는 목욕 주기와 관리 팁을 정리했어요.',
+          imageUrls: const [
+            'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400',
+          ],
+          createdAt: DateTime(2026, 9, 12),
         ),
         HealthContent(
           id: 'h2',
-          category: '관절건강',
+          category: ContentCategory.joint,
           title: '소형견 관절 건강 지키기',
-          summary: '일상에서 할 수 있는 관절 케어',
-          imageUrl:
-              'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400',
+          body: '계단 오르내리기, 미끄러운 바닥 등 일상에서 관절에 부담을 줄이는 방법을 소개합니다.',
+          imageUrls: const [
+            'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400',
+          ],
+          createdAt: DateTime(2026, 9, 10),
         ),
         HealthContent(
           id: 'h3',
-          category: '식이관리',
+          category: ContentCategory.diet,
           title: '우리 아이 체중 관리 식단',
-          summary: '비만 예방을 위한 급여 팁',
-          imageUrl:
-              'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400',
+          body: '비만 예방을 위한 급여량 계산과 저칼로리 간식 활용 팁을 담았어요.',
+          imageUrls: const [
+            'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400',
+          ],
+          createdAt: DateTime(2026, 9, 8),
         ),
       ];
 

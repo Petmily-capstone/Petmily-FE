@@ -35,8 +35,7 @@ class ApiAuthRepository implements AuthRepository {
       );
     }
 
-    final result =
-        AuthResult.fromJson(body['result'] as Map<String, dynamic>);
+    final result = AuthResult.fromJson(body['result'] as Map<String, dynamic>);
     await _tokenStore.save(result);
     return result;
   }
@@ -45,5 +44,16 @@ class ApiAuthRepository implements AuthRepository {
   Future<void> signOut() async {
     // TODO: 서버 로그아웃/토큰 무효화 API 연동 (있다면).
     await _tokenStore.clear();
+  }
+
+  @override
+  Future<AppUser> updateDisplayName(String name) async {
+    // TODO: 프로필 수정 API 연동 (예: PATCH /users/me).
+    await _tokenStore.updateNickname(name);
+    final user = await _tokenStore.cachedUser();
+    if (user == null) {
+      throw ApiException('UNAUTHENTICATED', '로그인 상태가 아니에요.');
+    }
+    return user;
   }
 }

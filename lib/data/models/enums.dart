@@ -203,6 +203,27 @@ enum ProductCategory {
       };
 }
 
+/// 건강 콘텐츠(게시글) 태그.
+enum ContentCategory {
+  skin,
+  joint,
+  diet,
+  etc;
+
+  String get label => switch (this) {
+        ContentCategory.skin => '피부관리',
+        ContentCategory.joint => '관절건강',
+        ContentCategory.diet => '식이관리',
+        ContentCategory.etc => '기타',
+      };
+
+  /// 라벨로 역매핑(없으면 [ContentCategory.etc]). 서버/목 문자열 매핑용.
+  static ContentCategory fromLabel(String label) => values.firstWhere(
+        (c) => c.label == label,
+        orElse: () => ContentCategory.etc,
+      );
+}
+
 /// 성분 분석 분류.
 enum IngredientKind {
   good,

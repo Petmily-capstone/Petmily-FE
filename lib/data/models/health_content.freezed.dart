@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HealthContent {
 
- String get id; String get category; String get title; String get summary; String? get imageUrl;
+ String get id; ContentCategory get category; String get title; String get body; List<String> get imageUrls; DateTime? get createdAt;
 /// Create a copy of HealthContent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $HealthContentCopyWith<HealthContent> get copyWith => _$HealthContentCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HealthContent&&(identical(other.id, id) || other.id == id)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HealthContent&&(identical(other.id, id) || other.id == id)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&const DeepCollectionEquality().equals(other.imageUrls, imageUrls)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,category,title,summary,imageUrl);
+int get hashCode => Object.hash(runtimeType,id,category,title,body,const DeepCollectionEquality().hash(imageUrls),createdAt);
 
 @override
 String toString() {
-  return 'HealthContent(id: $id, category: $category, title: $title, summary: $summary, imageUrl: $imageUrl)';
+  return 'HealthContent(id: $id, category: $category, title: $title, body: $body, imageUrls: $imageUrls, createdAt: $createdAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $HealthContentCopyWith<$Res>  {
   factory $HealthContentCopyWith(HealthContent value, $Res Function(HealthContent) _then) = _$HealthContentCopyWithImpl;
 @useResult
 $Res call({
- String id, String category, String title, String summary, String? imageUrl
+ String id, ContentCategory category, String title, String body, List<String> imageUrls, DateTime? createdAt
 });
 
 
@@ -65,14 +65,15 @@ class _$HealthContentCopyWithImpl<$Res>
 
 /// Create a copy of HealthContent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? category = null,Object? title = null,Object? summary = null,Object? imageUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? category = null,Object? title = null,Object? body = null,Object? imageUrls = null,Object? createdAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
-as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,summary: null == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
-as String,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
-as String?,
+as ContentCategory,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,body: null == body ? _self.body : body // ignore: cast_nullable_to_non_nullable
+as String,imageUrls: null == imageUrls ? _self.imageUrls : imageUrls // ignore: cast_nullable_to_non_nullable
+as List<String>,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String category,  String title,  String summary,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  ContentCategory category,  String title,  String body,  List<String> imageUrls,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HealthContent() when $default != null:
-return $default(_that.id,_that.category,_that.title,_that.summary,_that.imageUrl);case _:
+return $default(_that.id,_that.category,_that.title,_that.body,_that.imageUrls,_that.createdAt);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.id,_that.category,_that.title,_that.summary,_that.imageUrl
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String category,  String title,  String summary,  String? imageUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  ContentCategory category,  String title,  String body,  List<String> imageUrls,  DateTime? createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _HealthContent():
-return $default(_that.id,_that.category,_that.title,_that.summary,_that.imageUrl);case _:
+return $default(_that.id,_that.category,_that.title,_that.body,_that.imageUrls,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.id,_that.category,_that.title,_that.summary,_that.imageUrl
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String category,  String title,  String summary,  String? imageUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  ContentCategory category,  String title,  String body,  List<String> imageUrls,  DateTime? createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _HealthContent() when $default != null:
-return $default(_that.id,_that.category,_that.title,_that.summary,_that.imageUrl);case _:
+return $default(_that.id,_that.category,_that.title,_that.body,_that.imageUrls,_that.createdAt);case _:
   return null;
 
 }
@@ -212,15 +213,22 @@ return $default(_that.id,_that.category,_that.title,_that.summary,_that.imageUrl
 /// @nodoc
 @JsonSerializable()
 
-class _HealthContent implements HealthContent {
-  const _HealthContent({required this.id, required this.category, required this.title, required this.summary, this.imageUrl});
+class _HealthContent extends HealthContent {
+  const _HealthContent({required this.id, required this.category, required this.title, required this.body, final  List<String> imageUrls = const <String>[], this.createdAt}): _imageUrls = imageUrls,super._();
   factory _HealthContent.fromJson(Map<String, dynamic> json) => _$HealthContentFromJson(json);
 
 @override final  String id;
-@override final  String category;
+@override final  ContentCategory category;
 @override final  String title;
-@override final  String summary;
-@override final  String? imageUrl;
+@override final  String body;
+ final  List<String> _imageUrls;
+@override@JsonKey() List<String> get imageUrls {
+  if (_imageUrls is EqualUnmodifiableListView) return _imageUrls;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_imageUrls);
+}
+
+@override final  DateTime? createdAt;
 
 /// Create a copy of HealthContent
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HealthContent&&(identical(other.id, id) || other.id == id)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HealthContent&&(identical(other.id, id) || other.id == id)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&const DeepCollectionEquality().equals(other._imageUrls, _imageUrls)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,category,title,summary,imageUrl);
+int get hashCode => Object.hash(runtimeType,id,category,title,body,const DeepCollectionEquality().hash(_imageUrls),createdAt);
 
 @override
 String toString() {
-  return 'HealthContent(id: $id, category: $category, title: $title, summary: $summary, imageUrl: $imageUrl)';
+  return 'HealthContent(id: $id, category: $category, title: $title, body: $body, imageUrls: $imageUrls, createdAt: $createdAt)';
 }
 
 
@@ -255,7 +263,7 @@ abstract mixin class _$HealthContentCopyWith<$Res> implements $HealthContentCopy
   factory _$HealthContentCopyWith(_HealthContent value, $Res Function(_HealthContent) _then) = __$HealthContentCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String category, String title, String summary, String? imageUrl
+ String id, ContentCategory category, String title, String body, List<String> imageUrls, DateTime? createdAt
 });
 
 
@@ -272,14 +280,15 @@ class __$HealthContentCopyWithImpl<$Res>
 
 /// Create a copy of HealthContent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? category = null,Object? title = null,Object? summary = null,Object? imageUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? category = null,Object? title = null,Object? body = null,Object? imageUrls = null,Object? createdAt = freezed,}) {
   return _then(_HealthContent(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
-as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,summary: null == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
-as String,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
-as String?,
+as ContentCategory,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,body: null == body ? _self.body : body // ignore: cast_nullable_to_non_nullable
+as String,imageUrls: null == imageUrls ? _self._imageUrls : imageUrls // ignore: cast_nullable_to_non_nullable
+as List<String>,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

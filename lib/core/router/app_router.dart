@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/login_page.dart';
 import '../../features/diagnosis/diagnosis_page.dart';
 import '../../features/home/home_page.dart';
+import '../../features/content/content_compose_page.dart';
+import '../../features/content/content_detail_page.dart';
+import '../../features/content/health_contents_page.dart';
 import '../../features/mypage/mypage_page.dart';
 import '../../features/onboarding/onboarding_page.dart';
 import '../../features/pet_setup/pet_setup_page.dart';
@@ -45,6 +48,22 @@ final appRouter = GoRouter(
     GoRoute(
       path: Routes.cart,
       builder: (_, _) => const CartPage(),
+    ),
+    GoRoute(
+      path: Routes.healthContents,
+      builder: (_, _) => const HealthContentsPage(),
+      routes: [
+        // 'compose'를 ':id'보다 먼저 선언해 정적 경로가 우선 매칭되게 한다.
+        GoRoute(
+          path: 'compose',
+          builder: (_, _) => const ContentComposePage(),
+        ),
+        GoRoute(
+          path: ':id',
+          builder: (_, state) =>
+              ContentDetailPage(contentId: state.pathParameters['id']!),
+        ),
+      ],
     ),
     // 메인 탭 셸: 탭별 독립 스택.
     StatefulShellRoute.indexedStack(
