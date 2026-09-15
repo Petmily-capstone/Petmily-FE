@@ -30,7 +30,11 @@ class _PetSetupPageState extends ConsumerState<PetSetupPage> {
   final _name = TextEditingController();
   DateTime? _birthDate;
   PetGender? _gender;
-  final _breed = TextEditingController();
+  // 카탈로그에서 선택한 품종 라벨(직접 입력 모드거나 미선택이면 null).
+  String? _breed;
+  // '직접 입력' 모드 여부와 자유 입력값.
+  bool _breedCustom = false;
+  final _breedCustomText = TextEditingController();
   DogSize? _size;
   bool? _neutered;
   final _weight = TextEditingController();
@@ -38,12 +42,18 @@ class _PetSetupPageState extends ConsumerState<PetSetupPage> {
   @override
   void dispose() {
     _name.dispose();
-    _breed.dispose();
+    _breedCustomText.dispose();
     _weight.dispose();
     super.dispose();
   }
 
   bool get _isLast => _step == _totalSteps - 1;
+
+  /// 저장할 품종 문자열. 직접 입력 모드면 입력값, 아니면 선택 라벨.
+  String? get _resolvedBreed {
+    final value = _breedCustom ? _breedCustomText.text.trim() : _breed;
+    return (value == null || value.isEmpty) ? null : value;
+  }
 
   /// 현재 단계 입력이 유효해 '다음'을 누를 수 있는지.
   bool get _canProceed => switch (_step) {
@@ -92,7 +102,7 @@ class _PetSetupPageState extends ConsumerState<PetSetupPage> {
       id: '',
       name: _name.text.trim(),
       species: _species!,
-      breed: _breed.text.trim().isEmpty ? null : _breed.text.trim(),
+      breed: _resolvedBreed,
       gender: _gender,
       birthDate: _birthDate,
       size: _species == PetSpecies.dog ? _size : null,
@@ -212,10 +222,20 @@ class _PetSetupPageState extends ConsumerState<PetSetupPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              WizardTextField(
-                controller: _breed,
-                hint: _species == PetSpecies.cat ? '예: 코리안숏헤어' : '예: 푸들',
-                onChanged: (_) => setState(() {}),
+              BreedSelector(
+                breeds: _species!.breedLabels,
+                selected: _breed,
+                customSelected: _breedCustom,
+                customController: _breedCustomText,
+                onSelect: (breed) => setState(() {
+                  _breed = breed;
+                  _breedCustom = false;
+                }),
+                onSelectCustom: () => setState(() {
+                  _breedCustom = true;
+                  _breed = null;
+                }),
+                onCustomChanged: (_) => setState(() {}),
               ),
               if (_species == PetSpecies.dog) ...[
                 const SizedBox(height: AppSpacing.xl),
